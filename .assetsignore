@@ -1,0 +1,10 @@
+.git
+.git/**
+.gitignore
+.assetsignore
+*.bat
+*.txt
+stripe-worker.js
+.wrangler
+.wrangler/**
+wrangler.jsonc

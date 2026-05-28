@@ -112,6 +112,43 @@
   .steps span.t{color:#cabfae;font-size:1rem}
   .btn-gold{background:var(--gold);color:var(--ink)} .btn-gold:hover{background:#d8b97f;transform:translateY(-2px)}
 
+  /* CONFIGURATOR */
+  .cfg{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:start;margin-top:1rem}
+  .cfg-preview{position:sticky;top:100px}
+  .preview-box{background:var(--cream);border:1px solid rgba(255,255,255,.15);border-radius:16px;overflow:hidden;box-shadow:0 24px 50px rgba(0,0,0,.3)}
+  .preview-blanket{aspect-ratio:4/3.2;position:relative;display:flex;align-items:center;justify-content:center;transition:background .3s}
+  .preview-inner{width:62%;height:62%;border-radius:8px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(0,0,0,.18);transition:background .3s;position:relative}
+  .preview-name{font-family:'Fraunces',serif;font-style:italic;font-size:1.3rem;color:rgba(255,255,255,.92);text-shadow:0 1px 4px rgba(0,0,0,.4)}
+  .preview-edge{position:absolute;inset:0;border-radius:16px;pointer-events:none;transition:border-color .3s}
+  .preview-meta{padding:1.2rem 1.4rem;background:rgba(0,0,0,.15);color:var(--cream)}
+  .preview-meta .pm-row{display:flex;justify-content:space-between;font-size:.92rem;color:#cabfae;margin-bottom:.3rem}
+  .preview-meta .pm-total{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid rgba(255,255,255,.12);margin-top:.6rem;padding-top:.7rem}
+  .preview-meta .pm-total .lbl{font-size:1rem;color:var(--cream)}
+  .preview-meta .pm-total .val{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:600;color:var(--gold)}
+
+  .cfg-panel{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:1.6rem 1.7rem}
+  .cfg-step{margin-bottom:1.7rem}
+  .cfg-step:last-of-type{margin-bottom:1rem}
+  .cfg-label{font-family:'Fraunces',serif;font-size:1.15rem;color:var(--cream);margin-bottom:.2rem;display:flex;align-items:center;gap:.5rem}
+  .cfg-label .num2{width:24px;height:24px;border-radius:50%;background:var(--gold);color:var(--ink);font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'Karla'}
+  .cfg-hint{font-size:.85rem;color:#a89e8e;margin:.1rem 0 .8rem 2rem}
+  .swatches{display:flex;flex-wrap:wrap;gap:10px}
+  .swatch{width:62px;cursor:pointer;text-align:center;border:2px solid transparent;border-radius:10px;padding:4px;transition:border-color .2s,transform .15s}
+  .swatch:hover{transform:translateY(-2px)}
+  .swatch.sel{border-color:var(--gold)}
+  .swatch .chip{width:100%;aspect-ratio:1;border-radius:7px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.1)}
+  .swatch .nm{font-size:.66rem;color:#cabfae;margin-top:.25rem;line-height:1.1;display:block}
+  .opt-row{display:flex;flex-wrap:wrap;gap:8px}
+  .opt{padding:.55rem 1rem;border:1.5px solid rgba(255,255,255,.2);border-radius:30px;color:#cabfae;cursor:pointer;font-size:.92rem;font-weight:600;transition:all .2s;background:none;font-family:inherit}
+  .opt:hover{border-color:var(--gold);color:var(--cream)}
+  .opt.sel{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+  .opt .pr{font-size:.78rem;opacity:.75;margin-left:.3rem}
+  .cfg-input{width:100%;padding:.7rem .9rem;border-radius:10px;border:1.5px solid rgba(255,255,255,.2);background:rgba(0,0,0,.15);color:var(--cream);font-family:inherit;font-size:1rem}
+  .cfg-input::placeholder{color:#8a8073}
+  .cfg-buy{width:100%;margin-top:.6rem;font-size:1.1rem;padding:1.1rem}
+  .cfg-note{font-size:.82rem;color:#a89e8e;text-align:center;margin-top:.8rem}
+  @media(max-width:880px){.cfg{grid-template-columns:1fr;gap:32px}.cfg-preview{position:static}}
+
   /* WHY */
   .why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:38px;margin-top:1rem}
   .why{text-align:center;padding:1rem}
@@ -232,15 +269,56 @@
       <h2>Made just the way you want it</h2>
       <p>Pick your fabrics and Marmee will sew a blanket made only for you — usually ready in just a few days.</p>
     </div>
-    <div class="mto-grid">
-      <div class="mto-media reveal"><img src="img/web_IMG_4681.jpeg" alt="Children asleep under a handmade plush throw"></div>
-      <div class="reveal">
-        <ol class="steps">
-          <li><span class="n">1</span><span><strong>Choose your fabrics</strong><span class="t">Pick the front print and the plush minky back from the fabrics Marmee has on hand.</span></span></li>
-          <li><span class="n">2</span><span><strong>Pick your size</strong><span class="t">Baby Cuddle, Lap, or a larger throw — for a newborn, a child, or a grown-up who loves to be cozy.</span></span></li>
-          <li><span class="n">3</span><span><strong>Marmee makes it by hand</strong><span class="t">Sewn one at a time and shipped to your door, ready to gift or keep.</span></span></li>
-        </ol>
-        <a href="#contact" class="btn btn-gold">Start Your Blanket</a>
+    <div class="cfg">
+      <!-- LIVE PREVIEW -->
+      <div class="cfg-preview reveal">
+        <div class="preview-box">
+          <div class="preview-blanket" id="pvBlanket">
+            <div class="preview-edge" id="pvEdge"></div>
+            <div class="preview-inner" id="pvInner"><span class="preview-name" id="pvName"></span></div>
+          </div>
+          <div class="preview-meta">
+            <div class="pm-row"><span id="pmSize">Baby Cuddle · 30×44</span><span id="pmFront">—</span></div>
+            <div class="pm-row"><span id="pmBack">—</span><span id="pmEdge">—</span></div>
+            <div class="pm-total"><span class="lbl">Your blanket</span><span class="val" id="pvPrice">$82</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTROLS -->
+      <div class="cfg-panel reveal">
+        <div class="cfg-step">
+          <div class="cfg-label"><span class="num2">1</span> Front fabric</div>
+          <div class="cfg-hint">The printed flannel side. (Demo swatches — real fabrics shown when in stock.)</div>
+          <div class="swatches" id="swFront"></div>
+        </div>
+
+        <div class="cfg-step">
+          <div class="cfg-label"><span class="num2">2</span> Minky back color</div>
+          <div class="cfg-hint">The soft plush side.</div>
+          <div class="swatches" id="swBack"></div>
+        </div>
+
+        <div class="cfg-step">
+          <div class="cfg-label"><span class="num2">3</span> Size</div>
+          <div class="cfg-hint">Sets the base price.</div>
+          <div class="opt-row" id="optSize"></div>
+        </div>
+
+        <div class="cfg-step">
+          <div class="cfg-label"><span class="num2">4</span> Satin edge</div>
+          <div class="cfg-hint">An optional smooth satin border, often loved on baby blankets.</div>
+          <div class="opt-row" id="optEdge"></div>
+        </div>
+
+        <div class="cfg-step">
+          <div class="cfg-label"><span class="num2">5</span> Add a name <span style="font-size:.8rem;color:#a89e8e;font-weight:400;">(optional)</span></div>
+          <div class="cfg-hint">Embroidered name or word — makes it a keepsake.</div>
+          <input class="cfg-input" id="cfgName" type="text" maxlength="14" placeholder="e.g. Emma (leave blank for none)">
+        </div>
+
+        <button class="btn btn-gold cfg-buy" id="cfgBuy">Make This Blanket — <span id="cfgBuyPrice">$82</span></button>
+        <div class="cfg-note">Secure checkout. Each blanket is sewn by hand, usually ready in a few days.</div>
       </div>
     </div>
   </div>
@@ -294,14 +372,14 @@
 document.getElementById('yr').textContent=new Date().getFullYear();
 /* Prices are PLACEHOLDERS from market research — adjust in the pricing sheet. */
 const ready=[
- {img:'web_IMG_4681.jpeg',tag:'Lap Throw',name:'Cowhide Plush Throw',d:'Soft cowhide-print plush with rust satin edge. A cozy lap throw for ranch lovers.',price:'$165',avail:'1 available'},
- {img:'web_IMG_2754.jpeg',tag:'Child',name:'Green Tractor',d:'Tractor flannel with brown minky-dot back and deep green satin edge.',price:'$78',avail:'1 available'},
- {img:'web_IMG_2768.jpeg',tag:'Baby',name:'Sweet Clouds',d:'Soft blue cloud flannel with grey plush patch and white satin trim.',price:'$68',avail:'1 available'},
- {img:'web_IMG_2796.jpeg',tag:'Baby',name:'Counting Sheep',d:'Lamb-print flannel with caramel minky dot and white satin edge.',price:'$68',avail:'1 available'},
- {img:'web_IMG_2791.jpeg',tag:'Baby',name:'Peach Blossom',d:'Delicate peach floral with a curly plush center and powder-blue satin.',price:'$72',avail:'1 available'},
- {img:'web_IMG_2815.jpeg',tag:'Baby',name:'Storybook',d:'Charming nursery-rhyme flannel, blue plush patch, buttery satin trim.',price:'$68',avail:'1 available'},
- {img:'web_IMG_2948.jpeg',tag:'Baby',name:'Cloud Cuddle',d:'Blue cloud flannel with soft curly-plush center and grey satin border.',price:'$68',avail:'1 available'},
- {img:'web_FullSizeRender.jpeg',tag:'Baby',name:'Little Pups',d:'Sweet puppy flannel with aqua plush patch and sunny yellow satin.',price:'$64',avail:'1 available'},
+ {img:'web_IMG_4681.jpeg',tag:'Lap Throw',name:'Cowhide Plush Throw',d:'Soft cowhide-print plush with rust satin edge. A cozy lap throw for ranch lovers.',price:'$185',avail:'1 available'},
+ {img:'web_IMG_2754.jpeg',tag:'Child',name:'Green Tractor',d:'Tractor flannel with brown minky-dot back and deep green satin edge.',price:'$92',avail:'1 available'},
+ {img:'web_IMG_2768.jpeg',tag:'Baby',name:'Sweet Clouds',d:'Soft blue cloud flannel with grey plush patch and white satin trim.',price:'$82',avail:'1 available'},
+ {img:'web_IMG_2796.jpeg',tag:'Baby',name:'Counting Sheep',d:'Lamb-print flannel with caramel minky dot and white satin edge.',price:'$82',avail:'1 available'},
+ {img:'web_IMG_2791.jpeg',tag:'Baby',name:'Peach Blossom',d:'Delicate peach floral with a curly plush center and powder-blue satin.',price:'$85',avail:'1 available'},
+ {img:'web_IMG_2815.jpeg',tag:'Baby',name:'Storybook',d:'Charming nursery-rhyme flannel, blue plush patch, buttery satin trim.',price:'$82',avail:'1 available'},
+ {img:'web_IMG_2948.jpeg',tag:'Baby',name:'Cloud Cuddle',d:'Blue cloud flannel with soft curly-plush center and grey satin border.',price:'$82',avail:'1 available'},
+ {img:'web_FullSizeRender.jpeg',tag:'Baby',name:'Little Pups',d:'Sweet puppy flannel with aqua plush patch and sunny yellow satin.',price:'$78',avail:'1 available'},
 ];
 const g=document.getElementById('readyGrid');
 ready.forEach(p=>{const a=document.createElement('a');a.href='#contact';a.className='card';
@@ -310,7 +388,96 @@ ready.forEach(p=>{const a=document.createElement('a');a.href='#contact';a.classN
  <div class="card-meta"><span class="price">${p.price}</span><span class="avail">${p.avail}</span></div></div>`;
  g.appendChild(a);});
 
-const io=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}})},{threshold:.12});
+/* ===== CONFIGURATOR ===== */
+/* DEMO DATA — replace swatch colors/names with real fabric photos when in stock.
+   To use real fabric images later: give each item an `img` and render <img> instead of the color chip. */
+const FRONTS = [
+  {id:'clouds', name:'Cloud Sky', color:'#bcd6ee'},
+  {id:'floral', name:'Peach Floral', color:'#e7c3c0'},
+  {id:'lambs',  name:'Little Lambs', color:'#cfe3d2'},
+  {id:'tractor',name:'Farm Tractors', color:'#9fc1d8'},
+  {id:'pups',   name:'Puppies', color:'#efe3c8'},
+];
+const BACKS = [
+  {id:'blush', name:'Blush', color:'#e3b9b9'},
+  {id:'sand',  name:'Sand', color:'#d9c3a0'},
+  {id:'grey',  name:'Dove Grey', color:'#b9b6b0'},
+  {id:'sky',   name:'Sky Blue', color:'#a9c6dd'},
+  {id:'sage',  name:'Sage', color:'#a9b894'},
+];
+const SIZES = [
+  {id:'baby', name:'Baby Cuddle', dim:'30×44', price:82},
+  {id:'lap',  name:'Lap', dim:'45×60', price:185},
+];
+const EDGES = [
+  {id:'none',   name:'No satin edge', price:0},
+  {id:'satin',  name:'Satin binding', price:20},
+  {id:'ruffle', name:'Ruffled satin', price:28},
+];
+const NAME_PRICE = 15;
+
+const state = {front:FRONTS[0], back:BACKS[0], size:SIZES[0], edge:EDGES[0], name:''};
+
+function chip(c){return `<span class="chip" style="background:${c}"></span>`;}
+function renderSwatches(el, items, key){
+  el.innerHTML = items.map(it=>`<div class="swatch ${state[key].id===it.id?'sel':''}" data-id="${it.id}">${chip(it.color)}<span class="nm">${it.name}</span></div>`).join('');
+  el.querySelectorAll('.swatch').forEach(s=>s.onclick=()=>{state[key]=items.find(i=>i.id===s.dataset.id);renderSwatches(el,items,key);update();});
+}
+function renderOpts(el, items, key, showPrice){
+  el.innerHTML = items.map(it=>{
+    const p = showPrice && it.price>0 ? `<span class="pr">+$${it.price}</span>` : (key==='size'?`<span class="pr">$${it.price}</span>`:'');
+    const sub = it.dim?` · ${it.dim}`:'';
+    return `<button class="opt ${state[key].id===it.id?'sel':''}" data-id="${it.id}">${it.name}${sub}${p}</button>`;
+  }).join('');
+  el.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{state[key]=items.find(i=>i.id===o.dataset.id);renderOpts(el,items,key,showPrice);update();});
+}
+function total(){
+  return state.size.price + state.edge.price + (state.name.trim()?NAME_PRICE:0);
+}
+function update(){
+  document.getElementById('pvInner').style.background = state.front.color;
+  document.getElementById('pvBlanket').style.background = state.back.color;
+  const edgeColor = state.edge.id==='none' ? 'transparent' : '#f3ece0';
+  const pe = document.getElementById('pvEdge');
+  pe.style.border = state.edge.id==='none' ? 'none' : `12px solid ${edgeColor}`;
+  document.getElementById('pvName').textContent = state.name.trim();
+  document.getElementById('pmSize').textContent = `${state.size.name} · ${state.size.dim}`;
+  document.getElementById('pmFront').textContent = state.front.name;
+  document.getElementById('pmBack').textContent = `Back: ${state.back.name}`;
+  document.getElementById('pmEdge').textContent = state.edge.name;
+  const t = '$'+total();
+  document.getElementById('pvPrice').textContent = t;
+  document.getElementById('cfgBuyPrice').textContent = t;
+}
+renderSwatches(document.getElementById('swFront'),FRONTS,'front');
+renderSwatches(document.getElementById('swBack'),BACKS,'back');
+renderOpts(document.getElementById('optSize'),SIZES,'size',false);
+renderOpts(document.getElementById('optEdge'),EDGES,'edge',true);
+document.getElementById('cfgName').oninput=e=>{state.name=e.target.value;update();};
+update();
+
+/* CHECKOUT — sends the configuration to the Stripe Worker.
+   Set WORKER_URL to your deployed Cloudflare Worker endpoint. */
+const WORKER_URL = ""; // <-- paste your Worker URL here after deploying (see STRIPE-SETUP.txt)
+document.getElementById('cfgBuy').onclick = async ()=>{
+  const order = {
+    front: state.front.name, back: state.back.name, size: state.size.name+' '+state.size.dim,
+    edge: state.edge.name, name: state.name.trim(), amount: total()*100,
+    label: `Custom ${state.size.name} blanket — ${state.front.name} / ${state.back.name}`
+  };
+  if(!WORKER_URL){
+    alert("Checkout isn't connected yet.\n\nYour blanket:\n• "+order.size+"\n• Front: "+order.front+"\n• Back: "+order.back+"\n• Edge: "+order.edge+(order.name?"\n• Name: "+order.name:"")+"\n• Total: $"+total()+"\n\n(Add your Stripe Worker URL to go live — see STRIPE-SETUP.txt)");
+    return;
+  }
+  const btn = document.getElementById('cfgBuy'); btn.textContent='Connecting…'; btn.disabled=true;
+  try{
+    const r = await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(order)});
+    const d = await r.json();
+    if(d.url) location.href = d.url; else throw new Error(d.error||'Checkout failed');
+  }catch(err){ alert('Sorry, checkout had a problem: '+err.message); btn.textContent='Make This Blanket — $'+total(); btn.disabled=false; }
+};
+
+
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 const cio=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){const i=Array.from(g.children).indexOf(x.target);setTimeout(()=>x.target.classList.add('in'),(i%3)*90);cio.unobserve(x.target)}})},{threshold:.1});
 setTimeout(()=>document.querySelectorAll('.card').forEach(c=>cio.observe(c)),100);
