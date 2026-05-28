@@ -478,7 +478,12 @@ document.getElementById('cfgBuy').onclick = async ()=>{
 };
 
 
+const io=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}})},{threshold:.08});
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+function revealInView(){document.querySelectorAll('.reveal:not(.in)').forEach(el=>{const r=el.getBoundingClientRect();if(r.top<window.innerHeight&&r.bottom>0)el.classList.add('in');});}
+revealInView();
+window.addEventListener('load',revealInView);
+setTimeout(()=>document.querySelectorAll('.reveal:not(.in)').forEach(el=>el.classList.add('in')),1200);
 const cio=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){const i=Array.from(g.children).indexOf(x.target);setTimeout(()=>x.target.classList.add('in'),(i%3)*90);cio.unobserve(x.target)}})},{threshold:.1});
 setTimeout(()=>document.querySelectorAll('.card').forEach(c=>cio.observe(c)),100);
 document.querySelectorAll('#nl a').forEach(a=>a.addEventListener('click',()=>document.getElementById('nl').classList.remove('open')));
