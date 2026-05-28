@@ -87,10 +87,32 @@
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px 28px}
   .card{background:var(--cream);border-radius:14px;overflow:hidden;border:1px solid var(--line);transition:transform .35s,box-shadow .35s;cursor:pointer;opacity:0;transform:translateY(26px)}
   .card.in{opacity:1;transform:none}
-  .card:hover{transform:translateY(-7px);box-shadow:0 26px 50px var(--shadow)}
+  .card:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 26px 50px var(--shadow)}
   .card-img{position:relative;overflow:hidden;aspect-ratio:4/4.3;background:var(--cream-deep)}
-  .card-img img{width:100%;height:100%;object-fit:cover;transition:transform .7s}
-  .card:hover .card-img img{transform:scale(1.06)}
+  .card-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+  .card:hover .card-img img{transform:scale(1.04)}
+  .card-img::after{content:"⤢ View";position:absolute;bottom:10px;right:10px;background:rgba(59,53,46,.82);color:var(--cream);font-size:.72rem;font-weight:600;letter-spacing:.03em;padding:.3rem .6rem;border-radius:20px;opacity:0;transition:opacity .25s}
+  .card:hover .card-img::after{opacity:1}
+
+  /* LIGHTBOX */
+  .lb{position:fixed;inset:0;z-index:1000;background:rgba(40,34,28,.92);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px}
+  .lb.open{display:flex}
+  .lb-card{background:var(--cream);border-radius:16px;max-width:920px;width:100%;max-height:92vh;overflow:hidden;display:grid;grid-template-columns:1.3fr .9fr;box-shadow:0 30px 80px rgba(0,0,0,.5);animation:lbpop .3s ease}
+  @keyframes lbpop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+  .lb-imgwrap{background:#2b2620;overflow:hidden;position:relative;cursor:zoom-in;display:flex;align-items:center;justify-content:center}
+  .lb-imgwrap img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease;transform-origin:center}
+  .lb-imgwrap.zoomed{cursor:zoom-out}
+  .lb-imgwrap.zoomed img{transform:scale(2)}
+  .lb-info{padding:2rem 2rem 1.8rem;display:flex;flex-direction:column}
+  .lb-tag{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--rose-deep);margin-bottom:.6rem}
+  .lb-info h3{font-family:'Fraunces',serif;font-size:1.9rem;margin-bottom:.7rem;color:var(--ink)}
+  .lb-info .lb-d{color:var(--ink-soft);font-size:1.02rem;margin-bottom:1.2rem;line-height:1.6}
+  .lb-price{font-family:'Fraunces',serif;font-size:2rem;font-weight:600;color:var(--rose-deep)}
+  .lb-avail{font-size:.8rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--sage);margin-bottom:1.4rem}
+  .lb-buy{width:100%;margin-top:auto}
+  .lb-hint{font-size:.78rem;color:var(--ink-soft);text-align:center;margin-top:.9rem}
+  .lb-close{position:absolute;top:16px;right:20px;z-index:2;background:rgba(250,246,239,.92);border:none;width:40px;height:40px;border-radius:50%;font-size:1.3rem;cursor:pointer;color:var(--ink);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+  @media(max-width:760px){.lb-card{grid-template-columns:1fr;max-height:94vh;overflow-y:auto}.lb-imgwrap{aspect-ratio:4/3.6}}
   .tag{position:absolute;top:14px;left:14px;background:rgba(250,246,239,.94);font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:.35rem .75rem;border-radius:30px}
   .card-body{padding:1.2rem 1.3rem 1.5rem}
   .card-body h3{font-size:1.3rem;margin-bottom:.35rem}
@@ -149,6 +171,21 @@
   .cfg-note{font-size:.82rem;color:#a89e8e;text-align:center;margin-top:.8rem}
   @media(max-width:880px){.cfg{grid-template-columns:1fr;gap:32px}.cfg-preview{position:static}}
 
+  /* REVIEWS */
+  .reviews{background:var(--cream-deep)}
+  .rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:1rem}
+  .rev{background:var(--cream);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 10px 26px var(--shadow);display:flex;flex-direction:column;opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s}
+  .rev.in{opacity:1;transform:none}
+  .rev-img{aspect-ratio:1;overflow:hidden;background:var(--cream-deep)}
+  .rev-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+  .rev:hover .rev-img img{transform:scale(1.04)}
+  .rev-body{padding:1.2rem 1.3rem 1.4rem}
+  .rev-stars{color:var(--gold);font-size:1rem;letter-spacing:2px;margin-bottom:.6rem}
+  .rev-quote{font-family:'Fraunces',serif;font-style:italic;font-size:1.05rem;color:var(--ink);line-height:1.5;margin-bottom:.7rem}
+  .rev-name{font-size:.85rem;font-weight:600;color:var(--ink-soft);letter-spacing:.02em}
+  @media(max-width:880px){.rev-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.rev-grid{grid-template-columns:1fr}}
+
   /* WHY */
   .why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:38px;margin-top:1rem}
   .why{text-align:center;padding:1rem}
@@ -203,6 +240,7 @@
       <a href="#ready">Ready-Made</a>
       <a href="#order">Made to Order</a>
       <a href="#story">Our Story</a>
+      <a href="#reviews">Reviews</a>
       <a href="#sizes">Sizes</a>
       <a href="#contact" class="nav-cta">Get in Touch</a>
     </div>
@@ -236,8 +274,8 @@
 <section id="story" class="story">
   <div class="wrap story-grid">
     <div class="story-imgs reveal">
-      <img src="img/web_IMG_7268.jpeg" alt="Child cozy under a handmade blanket">
-      <img src="img/web_IMG_2096.jpeg" alt="A newborn and big sister wrapped in a Marmee's blanket">
+      <img src="img/web_IMG_0121.jpeg" alt="A girl in a Texas bluebonnet field holding a handmade blanket">
+      <img src="img/web_IMG_4296.jpeg" alt="A toddler snuggled in a soft handmade blanket">
     </div>
     <div class="story-text reveal">
       <div class="sec-eyebrow">Our Story</div>
@@ -324,6 +362,19 @@
   </div>
 </section>
 
+<!-- REVIEWS -->
+<section id="reviews" class="reviews">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-eyebrow">From Families Who Have One</div>
+      <h2>Loved by real little ones</h2>
+      <p>Every blanket goes home to a real family. Here are a few of the babies and kiddos snuggled up in theirs.</p>
+    </div>
+    <div class="rev-grid" id="revGrid"></div>
+    <p class="shop-note" style="text-align:center;margin-top:2.4rem;color:var(--ink-soft);">Have a Marmee's blanket? Send Marmee a photo — she'd love to feature it here.</p>
+  </div>
+</section>
+
 <!-- WHY -->
 <section id="why">
   <div class="wrap">
@@ -360,6 +411,25 @@
   </div>
 </section>
 
+<!-- LIGHTBOX -->
+<div class="lb" id="lightbox">
+  <div class="lb-card">
+    <div class="lb-imgwrap" id="lbWrap">
+      <button class="lb-close" id="lbClose" aria-label="Close">×</button>
+      <img id="lbImg" src="" alt="">
+    </div>
+    <div class="lb-info">
+      <div class="lb-tag" id="lbTag"></div>
+      <h3 id="lbName"></h3>
+      <div class="lb-d" id="lbDesc"></div>
+      <div class="lb-price" id="lbPrice"></div>
+      <div class="lb-avail" id="lbAvail"></div>
+      <button class="btn btn-gold lb-buy" id="lbBuy">Buy This One</button>
+      <div class="lb-hint">Click the photo to zoom · Esc to close</div>
+    </div>
+  </div>
+</div>
+
 <footer><div class="wrap">
   <div class="foot-inner">
     <div class="foot-brand">Marmee's Blankies ✺</div>
@@ -372,21 +442,77 @@
 document.getElementById('yr').textContent=new Date().getFullYear();
 /* Prices are PLACEHOLDERS from market research — adjust in the pricing sheet. */
 const ready=[
- {img:'web_IMG_4681.jpeg',tag:'Lap Throw',name:'Cowhide Plush Throw',d:'Soft cowhide-print plush with rust satin edge. A cozy lap throw for ranch lovers.',price:'$185',avail:'1 available'},
+ {img:'web_IMG_3040.jpeg',tag:'Baby',name:'Night Owls',d:'Teal & navy owl flannel with hot-pink minky dot and mint satin edge.',price:'$85',avail:'1 available'},
+ {img:'web_IMG_2978.jpeg',tag:'Baby',name:'Little Safari',d:'Elephants & dinos flannel with soft grey plush and bright lime satin.',price:'$82',avail:'1 available'},
+ {img:'web_IMG_3035.jpeg',tag:'Lap Throw',name:'Whitetail Deer',d:'Wildlife deer flannel with grey minky dot and rich brown satin. Ranch-ready.',price:'$185',avail:'1 available'},
+ {img:'web_IMG_4681.jpeg',tag:'Lap Throw',name:'Cowhide Plush',d:'Soft cowhide-print plush with rust satin edge. A cozy lap throw.',price:'$185',avail:'1 available'},
  {img:'web_IMG_2754.jpeg',tag:'Child',name:'Green Tractor',d:'Tractor flannel with brown minky-dot back and deep green satin edge.',price:'$92',avail:'1 available'},
  {img:'web_IMG_2768.jpeg',tag:'Baby',name:'Sweet Clouds',d:'Soft blue cloud flannel with grey plush patch and white satin trim.',price:'$82',avail:'1 available'},
  {img:'web_IMG_2796.jpeg',tag:'Baby',name:'Counting Sheep',d:'Lamb-print flannel with caramel minky dot and white satin edge.',price:'$82',avail:'1 available'},
  {img:'web_IMG_2791.jpeg',tag:'Baby',name:'Peach Blossom',d:'Delicate peach floral with a curly plush center and powder-blue satin.',price:'$85',avail:'1 available'},
- {img:'web_IMG_2815.jpeg',tag:'Baby',name:'Storybook',d:'Charming nursery-rhyme flannel, blue plush patch, buttery satin trim.',price:'$82',avail:'1 available'},
- {img:'web_IMG_2948.jpeg',tag:'Baby',name:'Cloud Cuddle',d:'Blue cloud flannel with soft curly-plush center and grey satin border.',price:'$82',avail:'1 available'},
  {img:'web_FullSizeRender.jpeg',tag:'Baby',name:'Little Pups',d:'Sweet puppy flannel with aqua plush patch and sunny yellow satin.',price:'$78',avail:'1 available'},
 ];
 const g=document.getElementById('readyGrid');
-ready.forEach(p=>{const a=document.createElement('a');a.href='#contact';a.className='card';
+ready.forEach((p,i)=>{const a=document.createElement('div');a.className='card';a.tabIndex=0;
  a.innerHTML=`<div class="card-img"><span class="tag">${p.tag}</span><img src="img/${p.img}" alt="${p.name}" loading="lazy"></div>
  <div class="card-body"><h3>${p.name}</h3><div class="d">${p.d}</div>
  <div class="card-meta"><span class="price">${p.price}</span><span class="avail">${p.avail}</span></div></div>`;
+ a.onclick=()=>openLightbox(i);
+ a.onkeydown=e=>{if(e.key==='Enter')openLightbox(i);};
  g.appendChild(a);});
+
+/* ===== REVIEWS =====
+   PLACEHOLDER quotes — replace with REAL customer words. Names can be first-name + initial.
+   Do not invent reviews for real customers; use actual comments/texts Marmee has received. */
+const reviews = [
+  {img:'web_IMG_0121.jpeg', quote:'She takes it everywhere — even out to the bluebonnets.', name:'— Sample review'},
+  {img:'web_IMG_2087.jpeg', quote:'So soft. Both girls fight over who gets to use it.', name:'— Sample review'},
+  {img:'web_IMG_4296.jpeg', quote:'The quality is incredible. It washes beautifully.', name:'— Sample review'},
+  {img:'web_IMG_2117.jpeg', quote:'Naptime is so much easier now. They love the satin edge.', name:'— Sample review'},
+  {img:'web_IMG_2096.jpeg', quote:'Gave one as a baby gift and it was the hit of the shower.', name:'— Sample review'},
+  {img:'web_IMG_4681.jpeg', quote:'Worth every penny. You can tell it is handmade with care.', name:'— Sample review'},
+];
+const rg=document.getElementById('revGrid');
+reviews.forEach(r=>{const d=document.createElement('div');d.className='rev reveal';
+ d.innerHTML=`<div class="rev-img"><img src="img/${r.img}" alt="A happy family with their Marmee's blanket" loading="lazy"></div>
+ <div class="rev-body"><div class="rev-stars">★★★★★</div><div class="rev-quote">"${r.quote}"</div><div class="rev-name">${r.name}</div></div>`;
+ rg.appendChild(d);});
+
+
+function openLightbox(i){
+  const p=ready[i];
+  document.getElementById('lbImg').src='img/'+p.img;
+  document.getElementById('lbImg').alt=p.name;
+  document.getElementById('lbTag').textContent=p.tag;
+  document.getElementById('lbName').textContent=p.name;
+  document.getElementById('lbDesc').textContent=p.d;
+  document.getElementById('lbPrice').textContent=p.price;
+  document.getElementById('lbAvail').textContent=p.avail;
+  const buy=document.getElementById('lbBuy');
+  buy.textContent='Buy This One — '+p.price;
+  buy.onclick=()=>buyReadyMade(p);
+  document.getElementById('lbWrap').classList.remove('zoomed');
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
+document.getElementById('lbWrap').onclick=()=>document.getElementById('lbWrap').classList.toggle('zoomed');
+document.getElementById('lbClose').onclick=closeLightbox;
+document.getElementById('lightbox').onclick=e=>{if(e.target.id==='lightbox')closeLightbox();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLightbox();});
+
+/* Buy a ready-made blanket via Stripe (uses same Worker as configurator) */
+async function buyReadyMade(p){
+  const amount=parseInt(p.price.replace(/[^0-9]/g,''),10)*100;
+  if(!WORKER_URL){alert("Checkout isn't connected yet.\n\n"+p.name+" — "+p.price+"\n\n(Add your Stripe Worker URL to go live — see STRIPE-SETUP.txt)");return;}
+  const buy=document.getElementById('lbBuy');buy.textContent='Connecting…';buy.disabled=true;
+  try{
+    const r=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({label:'Ready-Made: '+p.name,front:p.name,back:'—',size:p.tag,edge:'—',name:'',amount})});
+    const d=await r.json();
+    if(d.url)location.href=d.url;else throw new Error(d.error||'Checkout failed');
+  }catch(err){alert('Sorry, checkout had a problem: '+err.message);buy.textContent='Buy This One — '+p.price;buy.disabled=false;}
+}
 
 /* ===== CONFIGURATOR ===== */
 /* DEMO DATA — replace swatch colors/names with real fabric photos when in stock.
