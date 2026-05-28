@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marmee's Blankies — Handmade Blankets, Made One at a Time</title>
+<meta name="description" content="Lovingly handmade double-sided blankets — soft flannel and plush minky. Ready-made keepsakes and made-to-order blankets in your choice of fabrics. Baby, child, and adult sizes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Karla:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6ef; --cream-deep:#f2eadb; --ink:#3b352e; --ink-soft:#6f665b;
+    --rose:#c98b8b; --rose-deep:#a96a6a; --sage:#93a07c; --gold:#c4a368;
+    --line:#e3d8c6; --shadow:rgba(80,66,48,.14);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Karla',sans-serif;background:var(--cream);color:var(--ink);line-height:1.65;font-size:18px;overflow-x:hidden}
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:500;line-height:1.12;letter-spacing:-.01em}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 30px}
+  img{display:block;max-width:100%}
+
+  /* texture */
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.022;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+  /* NAV */
+  nav{position:sticky;top:0;z-index:100;background:rgba(250,246,239,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:82px}
+  .brand{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:600;letter-spacing:-.02em;display:flex;align-items:center;gap:.55rem}
+  .brand .mk{color:var(--rose);font-size:1.15rem}
+  .nav-links{display:flex;gap:2.4rem;font-size:1rem;font-weight:600;letter-spacing:.01em;align-items:center}
+  .nav-links a{color:var(--ink-soft);transition:color .2s;position:relative;padding:.2rem 0}
+  .nav-links a::after{content:"";position:absolute;left:0;bottom:-3px;height:2px;width:0;background:var(--rose);transition:width .28s}
+  .nav-links a:hover{color:var(--ink)} .nav-links a:hover::after{width:100%}
+  .nav-cta{background:var(--ink);color:var(--cream)!important;padding:.6rem 1.35rem;border-radius:40px;font-size:.95rem}
+  .nav-cta::after{display:none!important} .nav-cta:hover{background:var(--rose-deep)}
+  .nav-toggle{display:none;background:none;border:none;font-size:1.7rem;color:var(--ink);cursor:pointer}
+
+  /* HERO */
+  .hero{padding:70px 0 60px}
+  .hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:56px;align-items:center}
+  .eyebrow{display:inline-flex;align-items:center;gap:.65rem;font-size:.85rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--rose-deep);margin-bottom:1.5rem}
+  .eyebrow::before{content:"";width:32px;height:1.5px;background:var(--rose)}
+  .hero h1{font-size:clamp(2.9rem,5.6vw,4.6rem);margin-bottom:1.5rem}
+  .hero h1 em{font-style:italic;color:var(--rose-deep)}
+  .hero .lede{font-size:1.24rem;color:var(--ink-soft);max-width:31rem;margin-bottom:2.4rem}
+  .hero-actions{display:flex;gap:1rem;flex-wrap:wrap}
+  .btn{display:inline-block;padding:1rem 2rem;border-radius:46px;font-weight:700;font-size:1.02rem;transition:transform .25s,box-shadow .25s,background .25s,color .25s;cursor:pointer;border:none;font-family:inherit}
+  .btn-primary{background:var(--ink);color:var(--cream)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 30px var(--shadow);background:var(--rose-deep)}
+  .btn-ghost{border:2px solid var(--ink);color:var(--ink)} .btn-ghost:hover{background:var(--ink);color:var(--cream);transform:translateY(-2px)}
+  .hero-media{position:relative}
+  .hero-media .frame{border-radius:16px;overflow:hidden;box-shadow:0 28px 64px var(--shadow);transform:rotate(1.3deg)}
+  .hero-media .frame img{width:100%;aspect-ratio:4/4.5;object-fit:cover}
+  .hero-media .seal{position:absolute;left:-24px;bottom:30px;width:138px;height:138px;border-radius:50%;background:var(--cream);border:1px solid var(--line);box-shadow:0 16px 32px var(--shadow);transform:rotate(-9deg);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:'Fraunces',serif}
+  .seal .b{font-size:1.15rem;font-weight:600;color:var(--rose-deep);line-height:1.05}
+  .seal .s{font-family:'Karla';font-size:.68rem;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-soft);margin-top:.35rem}
+
+  /* trust strip */
+  .strip{background:var(--ink);color:var(--cream-deep);padding:.95rem 0;overflow:hidden;white-space:nowrap}
+  .strip-track{display:inline-flex;animation:slide 30s linear infinite;font-family:'Fraunces',serif;font-style:italic;font-size:1.1rem}
+  .strip-track span{display:inline-flex;align-items:center}
+  .strip-track span::after{content:"✦";color:var(--rose);font-style:normal;margin:0 2.6rem}
+  @keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  section{padding:90px 0}
+  .sec-head{text-align:center;max-width:40rem;margin:0 auto 3.4rem}
+  .sec-head h2{font-size:clamp(2.2rem,4.2vw,3.1rem);margin-bottom:1.1rem}
+  .sec-head p{color:var(--ink-soft);font-size:1.15rem}
+  .sec-eyebrow{font-size:.82rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--rose-deep);margin-bottom:1rem}
+
+  /* STORY */
+  .story{background:var(--cream-deep)}
+  .story-grid{display:grid;grid-template-columns:1fr 1.05fr;gap:60px;align-items:center}
+  .story-imgs{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .story-imgs img{border-radius:12px;aspect-ratio:3/4;object-fit:cover;box-shadow:0 16px 32px var(--shadow)}
+  .story-imgs img:first-child{margin-top:38px}
+  .story-text h2{font-size:clamp(2.1rem,4vw,3rem);margin-bottom:1.5rem}
+  .story-text h2 em{font-style:italic;color:var(--rose-deep)}
+  .story-text p{color:var(--ink-soft);margin-bottom:1.2rem;font-size:1.12rem}
+  .sig{font-family:'Fraunces',serif;font-style:italic;font-size:1.7rem;color:var(--ink);margin-top:1.6rem}
+
+  /* shared product grid */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px 28px}
+  .card{background:var(--cream);border-radius:14px;overflow:hidden;border:1px solid var(--line);transition:transform .35s,box-shadow .35s;cursor:pointer;opacity:0;transform:translateY(26px)}
+  .card.in{opacity:1;transform:none}
+  .card:hover{transform:translateY(-7px);box-shadow:0 26px 50px var(--shadow)}
+  .card-img{position:relative;overflow:hidden;aspect-ratio:4/4.3;background:var(--cream-deep)}
+  .card-img img{width:100%;height:100%;object-fit:cover;transition:transform .7s}
+  .card:hover .card-img img{transform:scale(1.06)}
+  .tag{position:absolute;top:14px;left:14px;background:rgba(250,246,239,.94);font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:.35rem .75rem;border-radius:30px}
+  .card-body{padding:1.2rem 1.3rem 1.5rem}
+  .card-body h3{font-size:1.3rem;margin-bottom:.35rem}
+  .card-body .d{font-size:.96rem;color:var(--ink-soft);margin-bottom:.8rem;min-height:2.7em}
+  .card-meta{display:flex;justify-content:space-between;align-items:center}
+  .price{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:600;color:var(--rose-deep)}
+  .avail{font-size:.76rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--sage)}
+
+  /* MADE TO ORDER */
+  .mto{background:var(--ink);color:var(--cream)}
+  .mto .sec-head h2{color:var(--cream)} .mto .sec-eyebrow{color:var(--gold)} .mto .sec-head p{color:#cabfae}
+  .mto-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;margin-top:1rem}
+  .mto-media{border-radius:16px;overflow:hidden;box-shadow:0 24px 50px rgba(0,0,0,.3);transform:rotate(-1.3deg)}
+  .mto-media img{width:100%;aspect-ratio:4/3.3;object-fit:cover}
+  .steps{list-style:none;margin:1.4rem 0 2rem}
+  .steps li{display:flex;gap:1.1rem;margin-bottom:1.3rem;align-items:flex-start}
+  .steps .n{flex:none;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Fraunces';font-weight:600;color:var(--gold)}
+  .steps strong{display:block;font-size:1.08rem;color:var(--cream);margin-bottom:.15rem}
+  .steps span.t{color:#cabfae;font-size:1rem}
+  .btn-gold{background:var(--gold);color:var(--ink)} .btn-gold:hover{background:#d8b97f;transform:translateY(-2px)}
+
+  /* WHY */
+  .why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:38px;margin-top:1rem}
+  .why{text-align:center;padding:1rem}
+  .why .ic{font-size:2rem;color:var(--rose);margin-bottom:1rem;display:block}
+  .why h3{font-size:1.4rem;margin-bottom:.6rem}
+  .why p{color:var(--ink-soft);font-size:1.02rem}
+
+  /* sizes */
+  .sizes{background:var(--cream-deep)}
+  .size-row{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-top:1rem}
+  .size-card{background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:2rem 2.4rem;text-align:center;min-width:230px;box-shadow:0 10px 24px var(--shadow)}
+  .size-card h3{font-size:1.5rem;margin-bottom:.3rem;color:var(--rose-deep)}
+  .size-card .dim{font-size:1.05rem;color:var(--ink-soft);margin-bottom:.5rem}
+  .size-card .use{font-size:.95rem;color:var(--ink-soft)}
+
+  /* CONTACT */
+  .contact{text-align:center}
+  .contact h2{font-size:clamp(2.2rem,4.4vw,3.2rem);margin-bottom:1.2rem}
+  .contact h2 em{font-style:italic;color:var(--rose-deep)}
+  .contact p{color:var(--ink-soft);font-size:1.18rem;max-width:36rem;margin:0 auto 2.4rem}
+  .contact-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+
+  footer{background:var(--ink);color:#cabfae;padding:50px 0 32px}
+  .foot-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem}
+  .foot-brand{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:600;color:var(--cream)}
+  .foot-links{display:flex;gap:2rem;font-size:1rem}
+  .foot-links a:hover{color:var(--cream)}
+  .foot-bottom{text-align:center;margin-top:2.2rem;padding-top:1.7rem;border-top:1px solid #4a4339;font-size:.88rem;color:#8a8073}
+
+  .reveal{opacity:0;transform:translateY(30px);transition:opacity .7s,transform .7s}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:880px){
+    .hero-grid,.story-grid,.mto-grid{grid-template-columns:1fr;gap:42px}
+    .hero-media{order:-1;max-width:440px;margin:0 auto}
+    .grid{grid-template-columns:repeat(2,1fr)}
+    .why-grid{grid-template-columns:1fr;gap:26px}
+    .nav-links{display:none} .nav-toggle{display:block}
+    .nav-links.open{display:flex;position:absolute;top:82px;left:0;right:0;flex-direction:column;background:var(--cream);padding:1.6rem 30px;gap:1.3rem;border-bottom:1px solid var(--line)}
+    section{padding:64px 0} .story-imgs img:first-child{margin-top:0}
+  }
+  @media(max-width:540px){.grid{grid-template-columns:1fr}.hero-media .seal{width:108px;height:108px;left:-10px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-inner">
+    <a href="#top" class="brand">Marmee's Blankies <span class="mk">✺</span></a>
+    <button class="nav-toggle" aria-label="Menu" onclick="document.getElementById('nl').classList.toggle('open')">☰</button>
+    <div class="nav-links" id="nl">
+      <a href="#ready">Ready-Made</a>
+      <a href="#order">Made to Order</a>
+      <a href="#story">Our Story</a>
+      <a href="#sizes">Sizes</a>
+      <a href="#contact" class="nav-cta">Get in Touch</a>
+    </div>
+  </div>
+</nav>
+
+<header id="top" class="hero">
+  <div class="wrap hero-grid">
+    <div class="reveal">
+      <span class="eyebrow">Handmade · one at a time</span>
+      <h1>Wonderfully soft blankets, made <em>by hand</em>.</h1>
+      <p class="lede">Double-sided and irresistibly plush — soft flannel and thick, cuddly minky in every blanket. Choose one ready to ship today, or have one made just the way you want it.</p>
+      <div class="hero-actions">
+        <a href="#ready" class="btn btn-primary">Shop Ready-Made</a>
+        <a href="#order" class="btn btn-ghost">Make It Your Own</a>
+      </div>
+    </div>
+    <div class="hero-media reveal">
+      <div class="frame"><img src="img/web_IMG_3017.jpeg" alt="A child wrapped happily in a plush handmade blanket"></div>
+      <div class="seal"><span class="b">Made by<br>Hand</span><span class="s">Never mass<br>produced</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="strip"><div class="strip-track">
+  <span>Double-sided softness</span><span>Premium plush minky</span><span>Quality flannel</span><span>Baby · Child · Adult sizes</span><span>Made just for you</span>
+  <span>Double-sided softness</span><span>Premium plush minky</span><span>Quality flannel</span><span>Baby · Child · Adult sizes</span><span>Made just for you</span>
+</div></div>
+
+<!-- STORY -->
+<section id="story" class="story">
+  <div class="wrap story-grid">
+    <div class="story-imgs reveal">
+      <img src="img/web_IMG_7268.jpeg" alt="Child cozy under a handmade blanket">
+      <img src="img/web_IMG_2096.jpeg" alt="A newborn and big sister wrapped in a Marmee's blanket">
+    </div>
+    <div class="story-text reveal">
+      <div class="sec-eyebrow">Our Story</div>
+      <h2>Made the way they <em>used to be</em>.</h2>
+      <p>Marmee's Blankies started the way the best things do — with one blanket, made for someone loved. What began as a gift became a calling.</p>
+      <p>Every blanket is layered by hand: a soft flannel print on one side, thick plush minky on the other, sewn one at a time. No factory line, no two exactly alike — just blankets made to be wrapped up in and handed down.</p>
+      <div class="sig">— Marmee</div>
+    </div>
+  </div>
+</section>
+
+<!-- READY MADE -->
+<section id="ready">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-eyebrow">Ready to Ship</div>
+      <h2>One-of-a-kind, ready today</h2>
+      <p>Each of these is already made and waiting — perfect when you need a thoughtful gift soon. When one is gone, it's gone for good.</p>
+    </div>
+    <div class="grid" id="readyGrid"></div>
+  </div>
+</section>
+
+<!-- MADE TO ORDER -->
+<section id="order" class="mto">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-eyebrow">Made to Order</div>
+      <h2>Made just the way you want it</h2>
+      <p>Pick your fabrics and Marmee will sew a blanket made only for you — usually ready in just a few days.</p>
+    </div>
+    <div class="mto-grid">
+      <div class="mto-media reveal"><img src="img/web_IMG_4681.jpeg" alt="Children asleep under a handmade plush throw"></div>
+      <div class="reveal">
+        <ol class="steps">
+          <li><span class="n">1</span><span><strong>Choose your fabrics</strong><span class="t">Pick the front print and the plush minky back from the fabrics Marmee has on hand.</span></span></li>
+          <li><span class="n">2</span><span><strong>Pick your size</strong><span class="t">Baby Cuddle, Lap, or a larger throw — for a newborn, a child, or a grown-up who loves to be cozy.</span></span></li>
+          <li><span class="n">3</span><span><strong>Marmee makes it by hand</strong><span class="t">Sewn one at a time and shipped to your door, ready to gift or keep.</span></span></li>
+        </ol>
+        <a href="#contact" class="btn btn-gold">Start Your Blanket</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section id="why">
+  <div class="wrap">
+    <div class="sec-head reveal"><div class="sec-eyebrow">The Marmee Difference</div><h2>Why they feel so good</h2></div>
+    <div class="why-grid">
+      <div class="why reveal"><span class="ic">✦</span><h3>Two Soft Sides</h3><p>Brushed flannel on one side, deep plush minky on the other. Fully double-sided — soft whichever way you wrap up.</p></div>
+      <div class="why reveal"><span class="ic">✦</span><h3>Quality Fabrics</h3><p>Made with premium plush and good flannel chosen to stay soft and hold up to years of washing and loving.</p></div>
+      <div class="why reveal"><span class="ic">✦</span><h3>Made to Last</h3><p>Machine washable and built for real life — naps, spills, and being dragged everywhere by a little one.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- SIZES -->
+<section id="sizes" class="sizes">
+  <div class="wrap">
+    <div class="sec-head reveal"><div class="sec-eyebrow">Sizes</div><h2>A size for everyone</h2></div>
+    <div class="size-row">
+      <div class="size-card reveal"><h3>Baby Cuddle</h3><div class="dim">30" × 44"</div><div class="use">Newborns &amp; toddlers — strollers, car seats, naps</div></div>
+      <div class="size-card reveal"><h3>Lap</h3><div class="dim">45" × 60"</div><div class="use">Children &amp; adults — the couch, the recliner, chilly evenings</div></div>
+      <div class="size-card reveal"><h3>Custom</h3><div class="dim">Your size</div><div class="use">Larger throws and special requests — just ask Marmee</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="contact">
+  <div class="wrap reveal">
+    <h2>Let's make something <em>cozy</em>.</h2>
+    <p>Questions about a blanket, a custom order, sizes, or shipping? Marmee would love to hear from you — reach out and she'll get right back.</p>
+    <div class="contact-actions">
+      <a href="mailto:hello@example.com" class="btn btn-primary">Email Marmee</a>
+      <a href="#ready" class="btn btn-ghost">Back to the Blankets</a>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">
+  <div class="foot-inner">
+    <div class="foot-brand">Marmee's Blankies ✺</div>
+    <div class="foot-links"><a href="#ready">Ready-Made</a><a href="#order">Made to Order</a><a href="#story">Story</a><a href="#contact">Contact</a></div>
+  </div>
+  <div class="foot-bottom">© <span id="yr"></span> Marmee's Blankies · Handmade with love · Each blanket is one of a kind</div>
+</div></footer>
+
+<script>
+document.getElementById('yr').textContent=new Date().getFullYear();
+/* Prices are PLACEHOLDERS from market research — adjust in the pricing sheet. */
+const ready=[
+ {img:'web_IMG_4681.jpeg',tag:'Lap Throw',name:'Cowhide Plush Throw',d:'Soft cowhide-print plush with rust satin edge. A cozy lap throw for ranch lovers.',price:'$165',avail:'1 available'},
+ {img:'web_IMG_2754.jpeg',tag:'Child',name:'Green Tractor',d:'Tractor flannel with brown minky-dot back and deep green satin edge.',price:'$78',avail:'1 available'},
+ {img:'web_IMG_2768.jpeg',tag:'Baby',name:'Sweet Clouds',d:'Soft blue cloud flannel with grey plush patch and white satin trim.',price:'$68',avail:'1 available'},
+ {img:'web_IMG_2796.jpeg',tag:'Baby',name:'Counting Sheep',d:'Lamb-print flannel with caramel minky dot and white satin edge.',price:'$68',avail:'1 available'},
+ {img:'web_IMG_2791.jpeg',tag:'Baby',name:'Peach Blossom',d:'Delicate peach floral with a curly plush center and powder-blue satin.',price:'$72',avail:'1 available'},
+ {img:'web_IMG_2815.jpeg',tag:'Baby',name:'Storybook',d:'Charming nursery-rhyme flannel, blue plush patch, buttery satin trim.',price:'$68',avail:'1 available'},
+ {img:'web_IMG_2948.jpeg',tag:'Baby',name:'Cloud Cuddle',d:'Blue cloud flannel with soft curly-plush center and grey satin border.',price:'$68',avail:'1 available'},
+ {img:'web_FullSizeRender.jpeg',tag:'Baby',name:'Little Pups',d:'Sweet puppy flannel with aqua plush patch and sunny yellow satin.',price:'$64',avail:'1 available'},
+];
+const g=document.getElementById('readyGrid');
+ready.forEach(p=>{const a=document.createElement('a');a.href='#contact';a.className='card';
+ a.innerHTML=`<div class="card-img"><span class="tag">${p.tag}</span><img src="img/${p.img}" alt="${p.name}" loading="lazy"></div>
+ <div class="card-body"><h3>${p.name}</h3><div class="d">${p.d}</div>
+ <div class="card-meta"><span class="price">${p.price}</span><span class="avail">${p.avail}</span></div></div>`;
+ g.appendChild(a);});
+
+const io=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}})},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+const cio=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){const i=Array.from(g.children).indexOf(x.target);setTimeout(()=>x.target.classList.add('in'),(i%3)*90);cio.unobserve(x.target)}})},{threshold:.1});
+setTimeout(()=>document.querySelectorAll('.card').forEach(c=>cio.observe(c)),100);
+document.querySelectorAll('#nl a').forEach(a=>a.addEventListener('click',()=>document.getElementById('nl').classList.remove('open')));
+</script>
+</body>
+</html>
