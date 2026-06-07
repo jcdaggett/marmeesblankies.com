@@ -1,5 +1,5 @@
 /**
- * Marmee's Blankies — Stripe Checkout Worker
+ * Marmee's Blankets — Stripe Checkout Worker
  * Creates a secure Stripe Checkout session for a configured blanket.
  *
  * Deploy this as a SEPARATE Cloudflare Worker (not the site itself).
@@ -41,8 +41,8 @@ export default {
     // Create Stripe Checkout session
     const params = new URLSearchParams();
     params.append("mode", "payment");
-    params.append("success_url", env.SUCCESS_URL || "https://marmeesblankies.com/?paid=1");
-    params.append("cancel_url", env.CANCEL_URL || "https://marmeesblankies.com/#order");
+    params.append("success_url", env.SUCCESS_URL || "https://marmeesblankets.com/?paid=1");
+    params.append("cancel_url", env.CANCEL_URL || "https://marmeesblankets.com/#order");
     params.append("line_items[0][quantity]", "1");
     params.append("line_items[0][price_data][currency]", "usd");
     params.append("line_items[0][price_data][unit_amount]", String(amount));
