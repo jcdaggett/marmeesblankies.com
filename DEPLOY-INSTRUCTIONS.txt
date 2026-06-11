@@ -1,0 +1,99 @@
+============================================================
+  MARMEE'S BLANKIES - HOW TO PUT THE SITE ONLINE
+  Repo: github.com/jcdaggett/marmeesblankies.com
+============================================================
+
+You do PART 1 once. After that, updating = double-click deploy.bat.
+
+Everything in this folder (index.html + the img folder) IS the website.
+
+------------------------------------------------------------
+  WHAT YOU NEED FIRST (one time)
+------------------------------------------------------------
+- Git installed:  https://git-scm.com/download/win
+  (Download, run installer, click Next through all the defaults.)
+- Your GitHub account (jcdaggett) - already have it.
+- A free Cloudflare account:  https://dash.cloudflare.com/sign-up
+
+
+============================================================
+  PART 1 - SEND THE SITE TO GITHUB (one time)
+============================================================
+
+1. Unzip this folder somewhere easy to find (e.g. Documents).
+
+2. Double-click  deploy.bat
+   - The first time, it auto-connects to your repo.
+   - Type a note like "first version" when asked, press Enter.
+   - If a GitHub sign-in window pops up, sign in and Authorize.
+
+3. IF YOU SEE AN ERROR about "rejected" or "unrelated histories":
+   That just means the repo already had a file in it (like a README).
+   Fix it once: SHIFT + right-click in the folder ->
+   "Open PowerShell window here", then type:
+
+       git pull origin main --allow-unrelated-histories
+
+   Press Enter, then double-click deploy.bat again. Done.
+
+
+============================================================
+  PART 2 - CONNECT CLOUDFLARE (one time, makes it LIVE)
+============================================================
+
+1. Go to https://dash.cloudflare.com and sign in.
+
+2. Left menu:  Workers & Pages -> Create -> Pages
+   -> "Connect to Git".
+
+3. Authorize Cloudflare to see GitHub, pick the repo
+   "marmeesblankies.com" -> "Begin setup".
+
+4. Build settings - leave everything blank/default:
+   - Framework preset:  None
+   - Build command:     (empty)
+   - Build output dir:  (empty, or a single dot:  . )
+   Click "Save and Deploy".
+
+5. Wait ~1 minute. You get a free live address like
+   https://marmeesblankies.pages.dev
+   The site is LIVE. Check it on your phone.
+
+
+------------------------------------------------------------
+  POINTING marmeesblankies.com AT IT
+------------------------------------------------------------
+In Cloudflare Pages -> your project -> "Custom domains"
+-> "Set up a custom domain" -> type  marmeesblankies.com
+-> follow the on-screen steps. Cloudflare walks you through it.
+(If the domain is registered elsewhere, Cloudflare tells you
+exactly what to change at your registrar.)
+
+
+============================================================
+  PART 3 - UPDATING LATER (the easy part)
+============================================================
+
+1. Edit index.html (or swap an image in the img folder).
+2. Double-click  deploy.bat
+3. Type a short note, press Enter.
+4. Live site updates itself in about a minute.
+
+No re-doing Part 1 or Part 2 ever again.
+
+
+============================================================
+  EDITING TIPS
+============================================================
+- Prices and blanket names are near the BOTTOM of index.html,
+  in the section starting:   const ready = [
+  Each blanket is one line - edit price or name there.
+
+- Contact email is a placeholder: hello@example.com
+  Search index.html for it and put the real email.
+
+- New blanket photo: put the .jpeg in the img folder, then copy
+  one line in the  const ready = [  list and change it.
+
+- Keep photos under ~300 KB each so the site loads fast.
+============================================================

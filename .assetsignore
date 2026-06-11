@@ -1,0 +1,11 @@
+.git
+.git/**
+.gitignore
+.assetsignore
+*.bat
+DEPLOY-INSTRUCTIONS.txt
+STRIPE-SETUP.txt
+stripe-worker.js
+.wrangler
+.wrangler/**
+wrangler.jsonc
