@@ -235,6 +235,9 @@
 
   /* WHY */
   .why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:38px;margin-top:1rem}
+  .check-list{list-style:none;max-width:640px;margin:1.4rem auto 0;display:grid;gap:1rem}
+  .check-list li{display:flex;align-items:flex-start;gap:.7rem;font-size:1.05rem;color:var(--ink-soft)}
+  .check-list li::before{content:"✓";color:var(--sage);font-weight:700;flex-shrink:0}
   .why{text-align:center;padding:1rem}
   .why .ic{font-size:2rem;color:var(--rose);margin-bottom:1rem;display:block}
   .why h3{font-size:1.4rem;margin-bottom:.6rem}
@@ -1061,6 +1064,14 @@
     "@type": "Answer",
     "text": "Every blanket is handmade in Texas and ships anywhere in the US."
    }
+  },
+  {
+   "@type": "Question",
+   "name": "Why do Marmee's blankets cost more than store-bought blankets?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "Because one person makes each one, start to finish — no factory line, no shortcuts. That means premium fabrics chosen for softness and durability, real attention to every seam, and a blanket built to last years instead of one season."
+   }
   }
  ]
 }
@@ -1087,8 +1098,8 @@
   <div class="wrap hero-grid">
     <div class="reveal">
       <span class="eyebrow">Handmade · one at a time</span>
-      <h1>Blankets made by hand, made <em>to keep</em>.</h1>
-      <p class="lede">Soft on both sides, sewn one at a time — cotton flannel, plush minky, cozy sherpa, and prints your family will fight over. From travel blankets to full-size cuddle throws, no two are ever alike. Custom designs launching soon.</p>
+      <h1>The blanket they'll reach for <em>every single day</em>.</h1>
+      <p class="lede">Every Marmee's blanket is sewn one at a time in Texas using carefully chosen fabrics, most finished with satin — made to be loved for years, not just a season.</p>
       <div class="hero-actions">
         <a href="#ready" class="btn btn-primary">Shop Ready-Made</a>
         <a href="#order" class="btn btn-ghost">Custom Blankets — Coming Soon</a>
@@ -1102,8 +1113,8 @@
 </header>
 
 <div class="strip"><div class="strip-track">
-  <span>Soft on both sides</span><span>Flannel, minky &amp; sherpa</span><span>Most satin-finished</span><span>Travel · Cuddle · Changing Pad sizes</span><span>Sewn one at a time</span>
-  <span>Soft on both sides</span><span>Flannel, minky &amp; sherpa</span><span>Most satin-finished</span><span>Travel · Cuddle · Changing Pad sizes</span><span>Sewn one at a time</span>
+  <span>Handmade in Texas</span><span>Flannel, minky &amp; sherpa</span><span>Most satin-finished</span><span>Travel · Cuddle · Changing Pad sizes</span><span>Sewn one at a time</span>
+  <span>Handmade in Texas</span><span>Flannel, minky &amp; sherpa</span><span>Most satin-finished</span><span>Travel · Cuddle · Changing Pad sizes</span><span>Sewn one at a time</span>
 </div></div>
 
 <main>
@@ -1117,7 +1128,7 @@
     <div class="story-text reveal">
       <div class="sec-eyebrow">Our Story</div>
       <h2>Made the way they <em>used to be</em>.</h2>
-      <p>Marmee's Blankets started the way the best things do — with one blanket, made for someone loved. What began as a gift became a calling.</p>
+      <p>It started with one blanket, made for someone deeply loved. Friends asked for one. Then family. Before long, what began as a single gift became Marmee's calling.</p>
       <p>Every blanket is layered by hand: two different soft fabrics — cotton flannel, plush minky, sherpa, or a printed favorite — sewn back to back, one at a time. No factory line, no two exactly alike — just blankets made to be wrapped up in and handed down.</p>
       <div class="sig">— Marmee</div>
     </div>
@@ -1130,7 +1141,7 @@
     <div class="sec-head reveal">
       <div class="sec-eyebrow">Ready to Ship</div>
       <h2>One-of-a-kind, ready today</h2>
-      <p>From travel blankets to full cuddle sizes — each of these is already made and waiting. Every blanket is one of a kind, so when it's gone, it's gone for good.</p>
+      <p>From travel blankets to full cuddle sizes — each of these is already made and waiting. Once it's gone, that exact blanket can never be made again.</p>
     </div>
     <div class="grid" id="readyGrid"></div>
   </div>
@@ -1142,7 +1153,7 @@
     <div class="sec-head reveal">
       <div class="sec-eyebrow">Made to Order</div>
       <div class="coming-badge"><span class="pulse"></span>Coming Soon</div>
-      <h2>Design your own. <em>Your fabric. Your size.</em></h2>
+      <h2>Design the blanket <em>your family will keep for years</em>.</h2>
       <p>Choose your front fabric, your plush back, your binding, and your size — and Marmee will sew a one-of-a-kind blanket made just for you. We're finalizing the launch fabric and size options now.</p>
       <a class="btn btn-gold" href="mailto:sales@marmeesblankets.com?subject=Notify%20me%20when%20Custom%20Blankets%20launch&body=Hi%20Marmee%2C%20please%20let%20me%20know%20the%20moment%20custom%20made-to-order%20blankets%20are%20available!">Notify Me at Launch</a>
     </div>
@@ -1213,10 +1224,25 @@
   <div class="wrap">
     <div class="sec-head reveal"><div class="sec-eyebrow">The Marmee Difference</div><h2>Why they feel so good</h2></div>
     <div class="why-grid">
-      <div class="why reveal"><span class="ic">✦</span><h3>Two Soft Sides</h3><p>A different soft texture on each side — plush minky, cotton flannel, sherpa, or a printed favorite. Fully reversible, soft no matter which side is out.</p></div>
-      <div class="why reveal"><span class="ic">✦</span><h3>Quality Fabrics</h3><p>Cotton flannel, cuddle minky, sherpa, and quality printed fabrics chosen to stay soft and hold up to years of washing and loving.</p></div>
-      <div class="why reveal"><span class="ic">✦</span><h3>Made to Last</h3><p>Machine washable and built for real life — naps, spills, and being dragged everywhere by a little one.</p></div>
+      <div class="why reveal"><span class="ic">✦</span><h3>Feels Incredible</h3><p>A different soft texture on each side — plush minky, cotton flannel, sherpa, or a printed favorite. Fully reversible, soft no matter which side is out.</p></div>
+      <div class="why reveal"><span class="ic">✦</span><h3>Built for Everyday Love</h3><p>Cotton flannel, cuddle minky, sherpa, and quality printed fabrics chosen to stay soft and hold up to years of washing and loving.</p></div>
+      <div class="why reveal"><span class="ic">✦</span><h3>Handmade to Last</h3><p>Machine washable and built for real life — naps, spills, and being dragged everywhere by a little one. Made to become tomorrow's favorite, not tomorrow's donation pile.</p></div>
     </div>
+  </div>
+</section>
+
+<!-- WHY MARMEE'S -->
+<section id="why-marmee" class="why-marmee">
+  <div class="wrap">
+    <div class="sec-head reveal"><div class="sec-eyebrow">Why Marmee's</div><h2>Why families choose Marmee's</h2></div>
+    <ul class="check-list reveal">
+      <li>Handmade by one person — not mass produced</li>
+      <li>Premium fabrics selected for softness and durability</li>
+      <li>Every blanket is one of a kind</li>
+      <li>Handmade in Texas</li>
+      <li>Machine washable</li>
+      <li>Designed to become a keepsake, not something kids outgrow</li>
+    </ul>
   </div>
 </section>
 
@@ -1244,6 +1270,7 @@
       <details><summary>Is each blanket really one of a kind?</summary><p>Yes. Every blanket is sewn one at a time by Marmee herself — no factory line. When a ready-made blanket sells, that exact combination is gone for good.</p></details>
       <details><summary>Can I order a custom blanket?</summary><p>Very soon. Made-to-order blankets — your fabrics, your size — are launching shortly. Use the "Notify Me at Launch" button above and you'll be first to know.</p></details>
       <details><summary>Where are the blankets made?</summary><p>Every blanket is handmade in Texas and ships anywhere in the US.</p></details>
+      <details><summary>Why do Marmee's blankets cost more than store-bought blankets?</summary><p>Because one person makes each one, start to finish — no factory line, no shortcuts. That means premium fabrics chosen for softness and durability, real attention to every seam, and a blanket built to last years instead of one season.</p></details>
     </div>
   </div>
 </section>
