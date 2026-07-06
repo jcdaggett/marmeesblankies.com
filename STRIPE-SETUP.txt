@@ -1,0 +1,100 @@
+============================================================
+  MARMEE'S BLANKIES - CONNECTING STRIPE CHECKOUT
+============================================================
+
+The custom-blanket configurator on the site lets a customer pick
+fabric, color, size, and edge, then pay. For the "pay" part to work,
+you deploy ONE small Cloudflare Worker that talks to Stripe.
+
+Your Stripe SECRET key lives ONLY inside that Worker (encrypted).
+It is NEVER in the website code and NEVER on GitHub. This is the
+safe, standard way to do it.
+
+You do this once.
+
+------------------------------------------------------------
+  STEP 1 - GET YOUR STRIPE KEYS
+------------------------------------------------------------
+1. Sign in at https://dashboard.stripe.com
+2. Top-right, toggle to "Test mode" first (so you can practice).
+3. Go to Developers -> API keys.
+4. You'll see:
+   - Publishable key:  pk_test_...   (safe to share)
+   - Secret key:       sk_test_...   (KEEP PRIVATE)
+   Copy both somewhere safe for a moment.
+
+------------------------------------------------------------
+  STEP 2 - CREATE THE WORKER
+------------------------------------------------------------
+1. Go to https://dash.cloudflare.com
+2. Left menu: Workers & Pages -> Create -> "Create Worker".
+3. Name it:  marmees-checkout   -> Deploy (it makes a hello-world).
+4. Click "Edit code".
+5. Delete everything in the editor.
+6. Open the file  stripe-worker.js  (in this folder) in Notepad,
+   copy ALL of it, paste into the Cloudflare editor.
+7. Click "Deploy".
+
+------------------------------------------------------------
+  STEP 3 - ADD YOUR SECRET KEY TO THE WORKER (the safe part)
+------------------------------------------------------------
+1. In the Worker page, go to:  Settings -> Variables and Secrets.
+2. Add a SECRET (not a plain variable):
+      Name:   STRIPE_SECRET_KEY
+      Value:  sk_test_...   (your secret key from Step 1)
+   Click "Encrypt" / Save.
+3. (Optional) Add two plain variables for nicer redirect pages:
+      SUCCESS_URL = https://marmeesblankies.com/?paid=1
+      CANCEL_URL  = https://marmeesblankies.com/#order
+   (Use your real domain once it's live; the .workers.dev URL is fine to start.)
+4. Re-deploy if it asks.
+
+------------------------------------------------------------
+  STEP 4 - CONNECT THE SITE TO THE WORKER
+------------------------------------------------------------
+1. Your Worker has a URL like:
+      https://marmees-checkout.jesse-daggett.workers.dev
+   Copy it from the Worker's page.
+2. Open  index.html  in Notepad. Ctrl+F for:   WORKER_URL
+   You'll find:   const WORKER_URL = "";
+3. Paste your Worker URL between the quotes:
+      const WORKER_URL = "https://marmees-checkout.jesse-daggett.workers.dev";
+4. Save index.html. Double-click deploy.bat to push it live.
+
+------------------------------------------------------------
+  STEP 5 - TEST IT
+------------------------------------------------------------
+1. On the live site, configure a blanket and click "Make This Blanket".
+2. It should send you to Stripe's checkout page.
+3. Use Stripe's TEST card:  4242 4242 4242 4242
+   Any future date, any 3-digit CVC, any ZIP.
+4. If it completes, the order shows in your Stripe Dashboard
+   (Payments). The blanket details (fabric, size, edge, name)
+   are saved on the order under "metadata" so you know what to make.
+
+------------------------------------------------------------
+  STEP 6 - GO LIVE (when ready for real money)
+------------------------------------------------------------
+1. In Stripe, switch OFF "Test mode".
+2. Get your LIVE keys (pk_live_... and sk_live_...).
+3. In the Worker -> Variables, replace STRIPE_SECRET_KEY with the
+   sk_live_ key. Re-deploy.
+4. That's it - real payments now work.
+
+------------------------------------------------------------
+  IF CHECKOUT ISN'T CONNECTED YET
+------------------------------------------------------------
+Until you paste the Worker URL into index.html, clicking
+"Make This Blanket" just shows a popup summary of the chosen
+blanket. The configurator still works for demoing - it just
+won't take payment until Step 4 is done.
+
+------------------------------------------------------------
+  IMPORTANT SAFETY NOTES
+------------------------------------------------------------
+- NEVER put the sk_ secret key in index.html or any file you push
+  to GitHub. It only goes in the Worker's encrypted Secrets.
+- The publishable pk_ key is safe, but this setup doesn't even
+  need it in the site - Stripe's hosted checkout handles everything.
+- Keep test mode on until you've done a full practice run.
+============================================================
