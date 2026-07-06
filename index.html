@@ -1333,10 +1333,12 @@ const reviews = [
   {img:'pink-woodland-fox-baby-blanket-1.jpg', quote:'The quality is incredible. It washes beautifully.', name:'— Sample review', verified:false},
   {img:'texas-longhorns-plush-lap-throw-1.jpg', quote:'Bought one in my team colors, then ordered six more.', name:'— Sample review', verified:false},
   {img:'rosewater-damask-faux-fur-throw-closeup.jpg', quote:'Worth every penny. You can tell it is handmade with care.', name:'— Sample review', verified:false},
+  {img:null, quote:"I love my blanket, I take it with me whenever I travel. It's the perfect size, and super soft.", name:'— Kate', verified:true},
 ];
 const rg=document.getElementById('revGrid');
 reviews.forEach(r=>{const d=document.createElement('div');d.className='rev reveal';
- d.innerHTML=`<div class="rev-img"><img src="img/${r.img}" alt="A happy family with their Marmee's blanket" loading="lazy"></div>
+ const imgHtml = r.img ? `<div class="rev-img"><img src="img/${r.img}" alt="A happy family with their Marmee's blanket" loading="lazy"></div>` : '';
+ d.innerHTML=`${imgHtml}
  <div class="rev-body">${r.verified?'<div class="rev-verified">✓ Verified Review</div>':''}<div class="rev-stars">★★★★★</div><div class="rev-quote">"${r.quote}"</div><div class="rev-name">${r.name}</div></div>`;
  rg.appendChild(d);});
 
