@@ -1,16 +1,19 @@
 ============================================================
-  MARMEE'S BLANKIES - CONNECTING STRIPE CHECKOUT
+  MARMEE'S BLANKETS - CONNECTING STRIPE CHECKOUT
 ============================================================
 
-The custom-blanket configurator on the site lets a customer pick
-fabric, color, size, and edge, then pay. For the "pay" part to work,
-you deploy ONE small Cloudflare Worker that talks to Stripe.
+Both the ready-made "Buy This One" buttons and the custom-blanket
+configurator's "Make This Blanket" button use the SAME Cloudflare
+Worker to talk to Stripe and take payment.
 
 Your Stripe SECRET key lives ONLY inside that Worker (encrypted).
 It is NEVER in the website code and NEVER on GitHub. This is the
 safe, standard way to do it.
 
-You do this once.
+Your Worker is already deployed:
+      https://marmees-checkout-2.jesse-daggett.workers.dev
+This doc covers updating its code and confirming it's live and
+correct — not creating it from scratch.
 
 ------------------------------------------------------------
   STEP 1 - GET YOUR STRIPE KEYS
@@ -24,77 +27,93 @@ You do this once.
    Copy both somewhere safe for a moment.
 
 ------------------------------------------------------------
-  STEP 2 - CREATE THE WORKER
+  STEP 2 - UPDATE THE WORKER'S CODE
 ------------------------------------------------------------
 1. Go to https://dash.cloudflare.com
-2. Left menu: Workers & Pages -> Create -> "Create Worker".
-3. Name it:  marmees-checkout   -> Deploy (it makes a hello-world).
-4. Click "Edit code".
-5. Delete everything in the editor.
-6. Open the file  stripe-worker.js  (in this folder) in Notepad,
+2. Workers & Pages -> marmees-checkout-2 -> "Edit code"
+3. Select all the existing code and delete it.
+4. Open the file  stripe-worker.js  (in this folder) in Notepad,
    copy ALL of it, paste into the Cloudflare editor.
-7. Click "Deploy".
+5. Click "Deploy".
 
 ------------------------------------------------------------
-  STEP 3 - ADD YOUR SECRET KEY TO THE WORKER (the safe part)
+  STEP 3 - CONFIRM YOUR SECRET KEY IS SET
 ------------------------------------------------------------
 1. In the Worker page, go to:  Settings -> Variables and Secrets.
-2. Add a SECRET (not a plain variable):
+2. Confirm a SECRET named STRIPE_SECRET_KEY exists. If not, add it:
       Name:   STRIPE_SECRET_KEY
       Value:  sk_test_...   (your secret key from Step 1)
    Click "Encrypt" / Save.
 3. (Optional) Add two plain variables for nicer redirect pages:
-      SUCCESS_URL = https://marmeesblankies.com/?paid=1
-      CANCEL_URL  = https://marmeesblankies.com/#order
-   (Use your real domain once it's live; the .workers.dev URL is fine to start.)
+      SUCCESS_URL = https://marmeesblankets.com/?paid=1
+      CANCEL_URL  = https://marmeesblankets.com/#order
 4. Re-deploy if it asks.
 
 ------------------------------------------------------------
-  STEP 4 - CONNECT THE SITE TO THE WORKER
+  STEP 4 - CREATE THE DISCOUNT CODE (e.g. THANKYOU20)
 ------------------------------------------------------------
-1. Your Worker has a URL like:
-      https://marmees-checkout.jesse-daggett.workers.dev
-   Copy it from the Worker's page.
-2. Open  index.html  in Notepad. Ctrl+F for:   WORKER_URL
-   You'll find:   const WORKER_URL = "";
-3. Paste your Worker URL between the quotes:
-      const WORKER_URL = "https://marmees-checkout.jesse-daggett.workers.dev";
-4. Save index.html. Double-click deploy.bat to push it live.
+This is zero-code — done entirely in the Stripe Dashboard, no
+Worker changes needed. The Worker already has
+"allow_promotion_codes" turned on, so any code you create here
+will work at checkout automatically.
+
+1. In Stripe Dashboard: Product catalog -> Coupons -> "+ New"
+2. Set the discount (e.g. 20% off, or a fixed dollar amount).
+3. Save the coupon.
+4. Go to Product catalog -> Promotion codes -> "+ New"
+5. Attach it to the coupon you just made.
+6. Set the CODE customers will type in:  THANKYOU20
+7. Set any limits you want (one use per customer, expiration
+   date, minimum order amount, etc.) and save.
+
+Do this in BOTH Test mode and Live mode separately once you're
+ready to go live — codes made in Test mode don't carry over.
 
 ------------------------------------------------------------
-  STEP 5 - TEST IT
+  STEP 5 - CONFIRM THE SITE IS POINTED AT THE WORKER
 ------------------------------------------------------------
-1. On the live site, configure a blanket and click "Make This Blanket".
+Open index.html and search for WORKER_URL. It should already say:
+      const WORKER_URL = "https://marmees-checkout-2.jesse-daggett.workers.dev";
+If it's blank, paste that URL in, save, and deploy the site.
+
+------------------------------------------------------------
+  STEP 6 - TEST IT END TO END
+------------------------------------------------------------
+1. On the live site, click "Buy This One" on a ready-made blanket
+   (or configure a custom blanket and click "Make This Blanket").
 2. It should send you to Stripe's checkout page.
-3. Use Stripe's TEST card:  4242 4242 4242 4242
+3. Try entering THANKYOU20 in the "Add promotion code" field and
+   confirm the discount applies.
+4. Use Stripe's TEST card:  4242 4242 4242 4242
    Any future date, any 3-digit CVC, any ZIP.
-4. If it completes, the order shows in your Stripe Dashboard
-   (Payments). The blanket details (fabric, size, edge, name)
-   are saved on the order under "metadata" so you know what to make.
+5. If it completes, the order shows in your Stripe Dashboard
+   (Payments). The blanket details (fabric, size, edge) are saved
+   on the order under "metadata" so you know what to make/ship.
 
 ------------------------------------------------------------
-  STEP 6 - GO LIVE (when ready for real money)
+  STEP 7 - GO LIVE (when ready for real money)
 ------------------------------------------------------------
 1. In Stripe, switch OFF "Test mode".
 2. Get your LIVE keys (pk_live_... and sk_live_...).
 3. In the Worker -> Variables, replace STRIPE_SECRET_KEY with the
    sk_live_ key. Re-deploy.
-4. That's it - real payments now work.
+4. Re-create your coupon + promotion code in Live mode (Step 4),
+   since Test mode codes don't transfer.
+5. That's it - real payments now work.
 
 ------------------------------------------------------------
-  IF CHECKOUT ISN'T CONNECTED YET
+  IF CHECKOUT ISN'T CONNECTED
 ------------------------------------------------------------
-Until you paste the Worker URL into index.html, clicking
-"Make This Blanket" just shows a popup summary of the chosen
-blanket. The configurator still works for demoing - it just
-won't take payment until Step 4 is done.
+If WORKER_URL is blank in index.html, clicking a buy button just
+shows a popup summary of the order instead of taking payment.
 
 ------------------------------------------------------------
   IMPORTANT SAFETY NOTES
 ------------------------------------------------------------
-- NEVER put the sk_ secret key in index.html or any file you push
+- NEVER put the sk_ secret key in index.html or any file pushed
   to GitHub. It only goes in the Worker's encrypted Secrets.
 - The publishable pk_ key is safe, but this setup doesn't even
   need it in the site - Stripe's hosted checkout handles everything.
-- Keep test mode on until you've done a full practice run.
+- Keep test mode on until you've done a full practice run,
+  including testing the promotion code.
 ============================================================
