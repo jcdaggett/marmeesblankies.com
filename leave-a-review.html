@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leave a Review | Marmee's Blankets</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Karla:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6ef; --cream-deep:#f2eadb; --ink:#3b352e; --ink-soft:#6f665b;
+    --rose:#c98b8b; --rose-deep:#a96a6a; --sage:#66745a; --gold:#c4a368;
+    --line:#e3d8c6; --shadow:rgba(80,66,48,.14);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Karla',sans-serif;background:var(--cream);color:var(--ink);line-height:1.65;font-size:18px;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:56px 20px}
+  .wrap{max-width:560px;width:100%}
+  .brand-logo{height:56px;width:auto;display:block;margin:0 auto 2.2rem}
+  h1{font-family:'Fraunces',serif;font-size:2rem;text-align:center;margin-bottom:.6rem}
+  .lede{text-align:center;color:var(--ink-soft);margin-bottom:2.6rem;font-size:1.05rem}
+  form{background:#fff;border:1px solid var(--line);border-radius:16px;padding:2.2rem;box-shadow:0 14px 34px var(--shadow)}
+  label{display:block;font-weight:600;font-size:.92rem;margin-bottom:.4rem;margin-top:1.4rem}
+  label:first-of-type{margin-top:0}
+  input[type=text], textarea{width:100%;padding:.85rem 1rem;border:1px solid var(--line);border-radius:10px;font-family:'Karla',sans-serif;font-size:1rem;background:var(--cream);color:var(--ink)}
+  input[type=text]:focus, textarea:focus{outline:2px solid var(--rose-deep);outline-offset:1px}
+  textarea{resize:vertical;min-height:120px}
+  .stars{display:flex;gap:.4rem;font-size:2rem;margin-top:.2rem}
+  .stars button{background:none;border:none;cursor:pointer;color:var(--line);padding:0;line-height:1;transition:color .15s}
+  .stars button.on{color:var(--gold)}
+  .hp{position:absolute;left:-9999px;opacity:0}
+  .submit-btn{margin-top:2rem;width:100%;background:var(--ink);color:var(--cream);border:none;border-radius:40px;padding:1rem;font-size:1.05rem;font-weight:700;cursor:pointer;font-family:'Karla',sans-serif}
+  .submit-btn:disabled{opacity:.6;cursor:not-allowed}
+  .msg{text-align:center;margin-top:1.4rem;font-weight:600}
+  .msg.ok{color:var(--sage)}
+  .msg.err{color:var(--rose-deep)}
+  .success{display:none;text-align:center;background:#fff;border:1px solid var(--line);border-radius:16px;padding:3rem 2.2rem;box-shadow:0 14px 34px var(--shadow)}
+  .success h2{font-family:'Fraunces',serif;font-size:1.6rem;margin-bottom:.8rem}
+  .success p{color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <img src="img/marmees-logo.png" alt="Marmee's Blankets" class="brand-logo">
+  <h1>How's your blanket?</h1>
+  <p class="lede">We'd love to hear about it — your review helps other families find us.</p>
+
+  <form id="revForm">
+    <label for="name">Your name</label>
+    <input type="text" id="name" maxlength="60" required placeholder="e.g. Sarah">
+
+    <label>Rating</label>
+    <div class="stars" id="stars">
+      <button type="button" data-v="1">★</button>
+      <button type="button" data-v="2">★</button>
+      <button type="button" data-v="3">★</button>
+      <button type="button" data-v="4">★</button>
+      <button type="button" data-v="5">★</button>
+    </div>
+
+    <label for="review">Your review</label>
+    <textarea id="review" maxlength="600" required placeholder="Tell us what you think..."></textarea>
+
+    <!-- honeypot field, hidden from real users -->
+    <input type="text" id="website" name="website" class="hp" tabindex="-1" autocomplete="off">
+
+    <button type="submit" class="submit-btn" id="submitBtn">Submit Review</button>
+    <div id="msg"></div>
+  </form>
+
+  <div class="success" id="successBox">
+    <h2>Thank you! 💛</h2>
+    <p>Your review means the world to us. Marmee will read it soon.</p>
+  </div>
+</div>
+
+<script>
+const REVIEWS_WORKER_URL = ""; // set after deploying the Cloudflare Worker — see REVIEWS-SETUP.txt
+
+let rating = 0;
+const starsWrap = document.getElementById('stars');
+starsWrap.querySelectorAll('button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    rating = parseInt(btn.dataset.v, 10);
+    starsWrap.querySelectorAll('button').forEach(b=>{
+      b.classList.toggle('on', parseInt(b.dataset.v,10) <= rating);
+    });
+  });
+});
+
+document.getElementById('revForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const msg = document.getElementById('msg');
+  const btn = document.getElementById('submitBtn');
+  msg.textContent = ''; msg.className = 'msg';
+
+  const name = document.getElementById('name').value.trim();
+  const review = document.getElementById('review').value.trim();
+  const honeypot = document.getElementById('website').value;
+
+  if (honeypot) return; // silently drop bot submissions
+
+  if (!name || !review || rating === 0) {
+    msg.textContent = 'Please fill in your name, a rating, and your review.';
+    msg.className = 'msg err';
+    return;
+  }
+
+  if (!REVIEWS_WORKER_URL) {
+    msg.textContent = "Review submission isn't connected yet. (Add the Worker URL — see REVIEWS-SETUP.txt)";
+    msg.className = 'msg err';
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  try {
+    const r = await fetch(REVIEWS_WORKER_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ name, rating, review })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Submission failed');
+    document.getElementById('revForm').style.display = 'none';
+    document.getElementById('successBox').style.display = 'block';
+  } catch (err) {
+    msg.textContent = "Something went wrong — please try again in a moment.";
+    msg.className = 'msg err';
+    btn.disabled = false; btn.textContent = 'Submit Review';
+  }
+});
+</script>
+</body>
+</html>
