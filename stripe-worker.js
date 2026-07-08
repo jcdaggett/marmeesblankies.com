@@ -1,6 +1,7 @@
 /**
- * Marmee's Blankies — Stripe Checkout Worker
- * Creates a secure Stripe Checkout session for a configured blanket.
+ * Marmee's Blankets — Stripe Checkout Worker
+ * Creates a secure Stripe Checkout session for a ready-made or
+ * custom-configured blanket.
  *
  * Deploy this as a SEPARATE Cloudflare Worker (not the site itself).
  * Your Stripe SECRET key is stored as an encrypted environment variable
@@ -34,27 +35,30 @@ export default {
     const descLines = [
       `Front: ${order.front}`,
       `Back: ${order.back}`,
+      `Size: ${order.size}`,
       `Edge: ${order.edge}`,
-      order.name ? `Name: ${order.name}` : null,
     ].filter(Boolean).join(" · ");
 
     // Create Stripe Checkout session
     const params = new URLSearchParams();
     params.append("mode", "payment");
-    params.append("success_url", env.SUCCESS_URL || "https://marmeesblankies.com/?paid=1");
-    params.append("cancel_url", env.CANCEL_URL || "https://marmeesblankies.com/#order");
+    params.append("success_url", env.SUCCESS_URL || "https://marmeesblankets.com/?paid=1");
+    params.append("cancel_url", env.CANCEL_URL || "https://marmeesblankets.com/#order");
     params.append("line_items[0][quantity]", "1");
     params.append("line_items[0][price_data][currency]", "usd");
     params.append("line_items[0][price_data][unit_amount]", String(amount));
-    params.append("line_items[0][price_data][product_data][name]", order.label || "Custom Blanket");
+    params.append("line_items[0][price_data][product_data][name]", order.label || "Marmee's Blanket");
     params.append("line_items[0][price_data][product_data][description]", descLines);
-    // Carry the full spec into the order so Marmee sees what to make
+    // Carry the full spec into the order so Marmee sees what to make/ship
     params.append("metadata[front]", order.front || "");
     params.append("metadata[back]", order.back || "");
     params.append("metadata[size]", order.size || "");
     params.append("metadata[edge]", order.edge || "");
-    params.append("metadata[name]", order.name || "");
     params.append("shipping_address_collection[allowed_countries][0]", "US");
+    // Let customers enter a discount/promo code (e.g. THANKYOU20) at checkout.
+    // Create the actual coupon + promotion code in the Stripe Dashboard —
+    // no code change needed here when you add new codes.
+    params.append("allow_promotion_codes", "true");
 
     const resp = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",
