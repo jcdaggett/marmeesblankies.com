@@ -1556,7 +1556,7 @@ async function openCheckout(order){
   if(_embedded){ try{_embedded.destroy();}catch(e){} _embedded=null; }
   document.getElementById('checkoutModal').classList.add('open');
   document.body.style.overflow='hidden';
-  _embedded=await s.initEmbeddedCheckout({clientSecret:d.clientSecret});
+  _embedded=await s.createEmbeddedCheckoutPage({clientSecret:d.clientSecret});
   _embedded.mount('#checkout');
 }
 function closeCheckout(){
