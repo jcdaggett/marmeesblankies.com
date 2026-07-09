@@ -1,48 +1,87 @@
 /**
  * Marmee's Blankets — Stripe Checkout Worker
- * Creates a secure Stripe Checkout session for a ready-made or
- * custom-configured blanket.
  *
- * Deploy this as a SEPARATE Cloudflare Worker (not the site itself).
- * Your Stripe SECRET key is stored as an encrypted environment variable
- * here in the Worker — it NEVER appears in the website code.
+ * POST /                       → creates a Stripe Checkout session for a
+ *                                ready-made or custom-configured blanket.
+ * GET  /?session_id=cs_...     → returns an order summary (item, amount,
+ *                                discount, order ref) for the confirmation page.
+ *
+ * Deploy as a SEPARATE Cloudflare Worker (not the site itself).
+ * STRIPE_SECRET_KEY is stored as an encrypted Worker secret — it NEVER
+ * appears in the website code.
  *
  * See STRIPE-SETUP.txt for step-by-step deployment.
  */
 
 export default {
   async fetch(request, env) {
-    // CORS so the website can call this Worker
     const cors = {
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
     };
     if (request.method === "OPTIONS") return new Response(null, { headers: cors });
+
+    // ---- GET: order summary for the confirmation page ----
+    if (request.method === "GET") {
+      const sessionId = new URL(request.url).searchParams.get("session_id");
+      if (!sessionId || !sessionId.startsWith("cs_"))
+        return json({ error: "Missing session_id" }, 400, cors);
+
+      const resp = await fetch(
+        "https://api.stripe.com/v1/checkout/sessions/" +
+          encodeURIComponent(sessionId) + "?expand[]=line_items",
+        { headers: { "Authorization": "Bearer " + env.STRIPE_SECRET_KEY } }
+      );
+      const s = await resp.json();
+      if (!resp.ok) return json({ error: s.error?.message || "Lookup failed" }, 404, cors);
+
+      const li = (s.line_items && s.line_items.data && s.line_items.data[0]) || {};
+      const md = s.metadata || {};
+      const spec = [md.front, md.back, md.size, md.edge]
+        .filter(v => v && v !== "\u2014").join(" \u00b7 ");
+      const ref = (s.payment_intent || s.id || "").toString().slice(-8).toUpperCase();
+
+      return json({
+        paid: s.payment_status === "paid",
+        order: ref,
+        item: li.description || "Your blanket",
+        spec,
+        subtotal: s.amount_subtotal,
+        discount: (s.total_details && s.total_details.amount_discount) || 0,
+        total: s.amount_total,
+        currency: (s.currency || "usd").toUpperCase(),
+        email: (s.customer_details && s.customer_details.email) || "",
+      }, 200, cors);
+    }
+
     if (request.method !== "POST")
       return json({ error: "POST only" }, 405, cors);
 
+    // ---- POST: create a Checkout session ----
     let order;
     try { order = await request.json(); }
     catch { return json({ error: "Bad request" }, 400, cors); }
 
-    // Basic validation
     const amount = parseInt(order.amount, 10);
     if (!amount || amount < 100 || amount > 100000)
       return json({ error: "Invalid amount" }, 400, cors);
 
-    // Build a readable description of the blanket
     const descLines = [
       `Front: ${order.front}`,
       `Back: ${order.back}`,
       `Size: ${order.size}`,
       `Edge: ${order.edge}`,
-    ].filter(Boolean).join(" · ");
+    ].filter(Boolean).join(" \u00b7 ");
 
-    // Create Stripe Checkout session
+    // Carry the session id into the success URL so the confirmation page
+    // can look up exactly what was purchased. Stripe swaps in the real id.
+    const base = env.SUCCESS_URL || "https://marmeesblankets.com/?paid=1";
+    const sep = base.includes("?") ? "&" : "?";
+
     const params = new URLSearchParams();
     params.append("mode", "payment");
-    params.append("success_url", env.SUCCESS_URL || "https://marmeesblankets.com/?paid=1");
+    params.append("success_url", base + sep + "session_id={CHECKOUT_SESSION_ID}");
     params.append("cancel_url", env.CANCEL_URL || "https://marmeesblankets.com/#order");
     params.append("line_items[0][quantity]", "1");
     params.append("line_items[0][price_data][currency]", "usd");
