@@ -287,6 +287,14 @@
   .oc-card h2{font-size:1.6rem;color:var(--ink);margin:0 0 .7rem;line-height:1.15}
   .oc-card p{color:var(--ink-soft);font-size:.98rem;line-height:1.6;margin:0 0 1.5rem}
   .oc-card p a{color:var(--rose-deep);font-weight:600}
+  .oc-lead{margin-bottom:1.3rem}
+  .oc-summary{text-align:left;background:var(--cream-deep);border:1px solid var(--line);border-radius:12px;padding:1rem 1.15rem;margin:0 0 1.3rem}
+  .oc-row{display:flex;justify-content:space-between;gap:1rem;font-size:.92rem;color:var(--ink-soft);padding:.32rem 0;line-height:1.4}
+  .oc-row>span:first-child{color:var(--ink-soft);flex:0 0 auto;font-weight:600}
+  .oc-row>span:last-child{color:var(--ink);text-align:right}
+  .oc-row.oc-total{border-top:1px solid var(--line);margin-top:.3rem;padding-top:.6rem;font-size:1rem}
+  .oc-row.oc-total>span{color:var(--ink);font-weight:700}
+  .oc-contact{font-size:.9rem;margin-bottom:1.5rem}
   .oc-btn{display:inline-block;background:var(--gold);color:var(--ink);border:none;border-radius:999px;padding:.8rem 1.8rem;font-size:.95rem;font-weight:700;cursor:pointer;transition:.2s}
   .oc-btn:hover{background:#d8b97f;transform:translateY(-2px)}
 </style>
@@ -1319,7 +1327,16 @@
     <div class="oc-check">✓</div>
     <div class="oc-eyebrow">Order Confirmed</div>
     <h2 id="ocTitle">Thank you for your order!</h2>
-    <p>Your payment went through and your order is confirmed. Marmee will begin handcrafting your blanket right away — most orders are ready to ship within a few days. Questions? Email <a href="mailto:sales@marmeesblankets.com">sales@marmeesblankets.com</a>.</p>
+    <p class="oc-lead">Your payment went through and your order is confirmed. Marmee will begin handcrafting your blanket right away — most orders are ready to ship within a few days.</p>
+    <div class="oc-summary" id="ocSummary" hidden>
+      <div class="oc-row"><span>Order</span><span id="ocOrder"></span></div>
+      <div class="oc-row"><span>Item</span><span id="ocItem"></span></div>
+      <div class="oc-row" id="ocSpecRow"><span>Details</span><span id="ocSpec"></span></div>
+      <div class="oc-row" id="ocDiscRow"><span>Discount</span><span id="ocDisc"></span></div>
+      <div class="oc-row oc-total"><span>Total paid</span><span id="ocTotal"></span></div>
+      <div class="oc-row" id="ocEmailRow"><span>Email</span><span id="ocEmail"></span></div>
+    </div>
+    <p class="oc-contact">Questions? Email <a href="mailto:sales@marmeesblankets.com">sales@marmeesblankets.com</a>.</p>
     <button class="oc-btn" id="ocClose">Continue Shopping</button>
   </div>
 </div>
@@ -1543,21 +1560,42 @@ document.querySelectorAll('#nl a').forEach(a=>a.addEventListener('click',()=>doc
 <script>
 (function(){
   var params=new URLSearchParams(location.search);
-  if(params.get('paid')==='1'){
-    var oc=document.getElementById('orderConfirm');
-    if(!oc)return;
-    oc.classList.add('open');
-    document.body.style.overflow='hidden';
-    var close=function(){
-      oc.classList.remove('open');
-      document.body.style.overflow='';
-      params.delete('paid');
-      var qs=params.toString();
-      history.replaceState({},'',location.pathname+(qs?('?'+qs):'')+location.hash);
-    };
-    document.getElementById('ocClose').onclick=close;
-    oc.addEventListener('click',function(e){if(e.target===oc)close();});
-    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&oc.classList.contains('open'))close();});
+  var sid=params.get('session_id');
+  var paid=params.get('paid')==='1';
+  if(!sid && !paid) return;
+  var oc=document.getElementById('orderConfirm');
+  if(!oc) return;
+  oc.classList.add('open');
+  document.body.style.overflow='hidden';
+  var close=function(){
+    oc.classList.remove('open');
+    document.body.style.overflow='';
+    params.delete('paid'); params.delete('session_id');
+    var qs=params.toString();
+    history.replaceState({},'',location.pathname+(qs?('?'+qs):'')+location.hash);
+  };
+  document.getElementById('ocClose').onclick=close;
+  oc.addEventListener('click',function(e){if(e.target===oc)close();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&oc.classList.contains('open'))close();});
+
+  // Fetch the real order details from the Worker and fill in the summary.
+  if(sid && typeof WORKER_URL==='string' && WORKER_URL){
+    var fmt=function(c){return '$'+(c/100).toFixed(2);};
+    var set=function(id,v){var el=document.getElementById(id);if(el)el.textContent=v;};
+    var hide=function(id){var el=document.getElementById(id);if(el)el.hidden=true;};
+    fetch(WORKER_URL+'?session_id='+encodeURIComponent(sid))
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(!d || d.error) return;
+        set('ocOrder','#'+d.order);
+        set('ocItem', d.item);
+        if(d.spec){ set('ocSpec', d.spec); } else { hide('ocSpecRow'); }
+        if(d.discount>0){ set('ocDisc','\u2212'+fmt(d.discount)); } else { hide('ocDiscRow'); }
+        set('ocTotal', fmt(d.total));
+        if(d.email){ set('ocEmail', d.email); } else { hide('ocEmailRow'); }
+        document.getElementById('ocSummary').hidden=false;
+      })
+      .catch(function(){});
   }
 })();
 </script>
