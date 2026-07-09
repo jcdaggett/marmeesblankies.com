@@ -46,6 +46,7 @@ export default {
         paid: s.payment_status === "paid",
         order: ref,
         item: li.description || "Your blanket",
+        img: md.img || "",
         spec,
         subtotal: s.amount_subtotal,
         discount: (s.total_details && s.total_details.amount_discount) || 0,
@@ -93,6 +94,7 @@ export default {
     params.append("metadata[back]", order.back || "");
     params.append("metadata[size]", order.size || "");
     params.append("metadata[edge]", order.edge || "");
+    params.append("metadata[img]", order.img || "");
     params.append("shipping_address_collection[allowed_countries][0]", "US");
     // Let customers enter a discount/promo code (e.g. THANKYOU20) at checkout.
     // Create the actual coupon + promotion code in the Stripe Dashboard —
