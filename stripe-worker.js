@@ -82,8 +82,8 @@ export default {
 
     const params = new URLSearchParams();
     params.append("mode", "payment");
-    params.append("success_url", base + sep + "session_id={CHECKOUT_SESSION_ID}");
-    params.append("cancel_url", env.CANCEL_URL || "https://marmeesblankets.com/#order");
+    params.append("ui_mode", "embedded");
+    params.append("return_url", base + sep + "session_id={CHECKOUT_SESSION_ID}");
     params.append("line_items[0][quantity]", "1");
     params.append("line_items[0][price_data][currency]", "usd");
     params.append("line_items[0][price_data][unit_amount]", String(amount));
@@ -112,7 +112,7 @@ export default {
 
     const data = await resp.json();
     if (!resp.ok) return json({ error: data.error?.message || "Stripe error" }, 500, cors);
-    return json({ url: data.url }, 200, cors);
+    return json({ clientSecret: data.client_secret }, 200, cors);
   },
 };
 
