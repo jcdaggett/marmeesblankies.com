@@ -82,7 +82,7 @@ export default {
 
     const params = new URLSearchParams();
     params.append("mode", "payment");
-    params.append("ui_mode", "embedded");
+    params.append("ui_mode", "embedded_page");
     params.append("return_url", base + sep + "session_id={CHECKOUT_SESSION_ID}");
     params.append("line_items[0][quantity]", "1");
     params.append("line_items[0][price_data][currency]", "usd");
