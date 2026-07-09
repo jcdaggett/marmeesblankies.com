@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Reviews — Moderation · Marmee's Blankets</title>
+<style>
+  :root{--cream:#faf6ef;--cream-deep:#f2eadb;--ink:#3b352e;--ink-soft:#6f665b;
+        --rose:#c98b8b;--rose-deep:#a96a6a;--sage:#66745a;--gold:#c4a368;--line:#e3d8c6;
+        --shadow:rgba(80,66,48,.14);--red:#b04b4b;--green:#5f7a4f}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--cream);color:var(--ink);
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       line-height:1.5;padding:1.5rem}
+  .wrap{max-width:760px;margin:0 auto}
+  h1{font-size:1.5rem;margin:0 0 .25rem}
+  .sub{color:var(--ink-soft);font-size:.9rem;margin:0 0 1.5rem}
+  .keybar{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;background:var(--cream-deep);
+          border:1px solid var(--line);border-radius:12px;padding:.9rem 1rem;margin-bottom:1.25rem}
+  .keybar input{flex:1;min-width:180px;padding:.55rem .7rem;border:1px solid var(--line);
+                border-radius:8px;font-size:.95rem;background:#fff}
+  button{font-family:inherit;font-size:.9rem;font-weight:600;border:none;border-radius:999px;
+         padding:.55rem 1.1rem;cursor:pointer;transition:.15s}
+  button:hover{transform:translateY(-1px)}
+  .btn-gold{background:var(--gold);color:var(--ink)}
+  .btn-approve{background:var(--green);color:#fff}
+  .btn-delete{background:transparent;color:var(--red);border:1px solid var(--red);padding:.5rem 1rem}
+  .btn-delete:hover{background:var(--red);color:#fff}
+  .msg{font-size:.9rem;color:var(--ink-soft);margin:.75rem 0}
+  .msg.err{color:var(--red)}
+  .section-h{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--rose-deep);
+             font-weight:700;margin:1.6rem 0 .7rem}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:1rem 1.15rem;
+        margin-bottom:.8rem;box-shadow:0 6px 16px var(--shadow)}
+  .card.approved{background:var(--cream-deep);opacity:.9}
+  .card-top{display:flex;justify-content:space-between;align-items:baseline;gap:.75rem;flex-wrap:wrap}
+  .stars{color:var(--gold);font-size:1.05rem;letter-spacing:1px}
+  .who{font-weight:700}
+  .when{color:var(--ink-soft);font-size:.8rem}
+  .pill{font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+        padding:.2rem .55rem;border-radius:999px}
+  .pill.pending{background:#f4e6c9;color:#8a6d2f}
+  .pill.live{background:#e2ecdc;color:var(--green)}
+  .quote{margin:.6rem 0 .9rem;color:var(--ink)}
+  .actions{display:flex;gap:.6rem}
+  .empty{color:var(--ink-soft);font-style:italic;padding:.5rem 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Reviews — Moderation</h1>
+  <p class="sub">Approve a review to publish it to the site. Delete removes it for good.</p>
+
+  <div class="keybar">
+    <input id="key" type="password" placeholder="Admin key" autocomplete="off">
+    <button class="btn-gold" id="load">Load reviews</button>
+    <label style="font-size:.85rem;color:var(--ink-soft)"><input type="checkbox" id="remember" checked> remember</label>
+  </div>
+  <div class="msg" id="msg"></div>
+
+  <div id="pendingWrap" hidden>
+    <div class="section-h">Pending — needs your review</div>
+    <div id="pending"></div>
+  </div>
+  <div id="approvedWrap" hidden>
+    <div class="section-h">Published on the site</div>
+    <div id="approved"></div>
+  </div>
+</div>
+
+<script>
+const REVIEWS_WORKER_URL = "https://marmees-reviews.jesse-daggett.workers.dev";
+const keyEl = document.getElementById('key');
+const msg = document.getElementById('msg');
+const remember = document.getElementById('remember');
+
+// restore saved key
+try { const k = localStorage.getItem('mb_admin_key'); if (k) { keyEl.value = k; } } catch(e){}
+
+function setMsg(t, err){ msg.textContent = t || ''; msg.className = 'msg' + (err ? ' err' : ''); }
+function stars(n){ return '★★★★★☆☆☆☆☆'.slice(5-n, 10-n); }
+function esc(s){ return (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function fmtDate(iso){ try { return new Date(iso).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}); } catch(e){ return ''; } }
+
+async function load(){
+  const key = keyEl.value.trim();
+  if(!key){ setMsg('Enter your admin key.', true); return; }
+  if(remember.checked){ try{ localStorage.setItem('mb_admin_key', key); }catch(e){} }
+  else { try{ localStorage.removeItem('mb_admin_key'); }catch(e){} }
+  setMsg('Loading…');
+  try{
+    const r = await fetch(REVIEWS_WORKER_URL + '?list=all&key=' + encodeURIComponent(key));
+    const d = await r.json();
+    if(!r.ok){ setMsg(d.error === 'Unauthorized' ? 'Wrong admin key.' : (d.error || 'Failed to load.'), true); return; }
+    render(d.reviews || []);
+    setMsg('');
+  }catch(err){ setMsg('Could not reach the review server: ' + err.message, true); }
+}
+
+function render(list){
+  const pending = list.filter(x => !x.approved);
+  const approved = list.filter(x => x.approved);
+  document.getElementById('pendingWrap').hidden = false;
+  document.getElementById('approvedWrap').hidden = false;
+  const pc = document.getElementById('pending');
+  const ac = document.getElementById('approved');
+  pc.innerHTML = pending.length ? pending.map(card).join('') : '<div class="empty">No new reviews waiting.</div>';
+  ac.innerHTML = approved.length ? approved.map(card).join('') : '<div class="empty">Nothing published yet.</div>';
+  bind();
+}
+
+function card(x){
+  const live = x.approved;
+  return `<div class="card${live?' approved':''}">
+    <div class="card-top">
+      <span><span class="stars">${stars(x.rating)}</span> <span class="who">${esc(x.name)}</span></span>
+      <span class="pill ${live?'live':'pending'}">${live?'Live':'Pending'}</span>
+    </div>
+    <div class="when">${fmtDate(x.submittedAt)}</div>
+    <div class="quote">"${esc(x.review)}"</div>
+    <div class="actions">
+      ${live ? '' : `<button class="btn-approve" data-approve="${esc(x.id)}">Approve &amp; publish</button>`}
+      <button class="btn-delete" data-delete="${esc(x.id)}">Delete</button>
+    </div>
+  </div>`;
+}
+
+function bind(){
+  document.querySelectorAll('[data-approve]').forEach(b => b.onclick = () => act('approve', b.dataset.approve, b));
+  document.querySelectorAll('[data-delete]').forEach(b => b.onclick = () => {
+    if(confirm('Delete this review permanently?')) act('delete', b.dataset.delete, b);
+  });
+}
+
+async function act(action, id, btn){
+  const key = keyEl.value.trim();
+  btn.disabled = true; btn.textContent = '…';
+  try{
+    const r = await fetch(REVIEWS_WORKER_URL + '?action=' + action + '&key=' + encodeURIComponent(key), {
+      method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ id })
+    });
+    const d = await r.json();
+    if(!r.ok){ setMsg(d.error || 'Action failed.', true); btn.disabled = false; return; }
+    load(); // refresh
+  }catch(err){ setMsg('Action failed: ' + err.message, true); btn.disabled = false; }
+}
+
+document.getElementById('load').onclick = load;
+keyEl.addEventListener('keydown', e => { if(e.key === 'Enter') load(); });
+// auto-load if a key is already saved
+if(keyEl.value) load();
+</script>
+</body>
+</html>
