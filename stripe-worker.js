@@ -87,8 +87,10 @@ export default {
     params.append("line_items[0][quantity]", "1");
     params.append("line_items[0][price_data][currency]", "usd");
     params.append("line_items[0][price_data][unit_amount]", String(amount));
+    params.append("line_items[0][price_data][tax_behavior]", "exclusive"); // US: tax added on top
     params.append("line_items[0][price_data][product_data][name]", order.label || "Marmee's Blanket");
     params.append("line_items[0][price_data][product_data][description]", descLines);
+    params.append("line_items[0][price_data][product_data][tax_code]", "txcd_99999999"); // General - Tangible Goods
     // Carry the full spec into the order so Marmee sees what to make/ship
     params.append("metadata[front]", order.front || "");
     params.append("metadata[back]", order.back || "");
@@ -100,6 +102,7 @@ export default {
     // Create the actual coupon + promotion code in the Stripe Dashboard —
     // no code change needed here when you add new codes.
     params.append("allow_promotion_codes", "true");
+    params.append("automatic_tax[enabled]", "true"); // Stripe Tax calculates from shipping address
 
     const resp = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",
