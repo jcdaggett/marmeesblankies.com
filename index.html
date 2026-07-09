@@ -1422,6 +1422,37 @@ reviews.forEach(r=>{const d=document.createElement('div');d.className='rev revea
  <div class="rev-body">${r.verified?'<div class="rev-verified">✓ Verified Review</div>':''}<div class="rev-stars">★★★★★</div><div class="rev-quote">"${r.quote}"</div><div class="rev-name">${r.name}</div></div>`;
  rg.appendChild(d);});
 
+/* Pull in customer-submitted reviews that Marmee has approved (via admin-reviews.html). */
+const REVIEWS_WORKER_URL = "https://marmees-reviews.jesse-daggett.workers.dev";
+(function loadApprovedReviews(){
+  if(!REVIEWS_WORKER_URL) return;
+  fetch(REVIEWS_WORKER_URL + '?list=approved')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var list = (d && d.reviews) || [];
+      list.forEach(function(rev){
+        var n = Math.max(1, Math.min(5, parseInt(rev.rating,10) || 5));
+        var d2 = document.createElement('div');
+        d2.className = 'rev reveal';
+        var body = document.createElement('div');
+        body.className = 'rev-body';
+        var st = document.createElement('div');
+        st.className = 'rev-stars';
+        st.textContent = '★★★★★☆☆☆☆☆'.slice(5-n, 10-n);
+        var q = document.createElement('div');
+        q.className = 'rev-quote';
+        q.textContent = '"' + (rev.review || '') + '"';   // textContent = safe from HTML injection
+        var nm = document.createElement('div');
+        nm.className = 'rev-name';
+        nm.textContent = '— ' + (rev.name || '');
+        body.appendChild(st); body.appendChild(q); body.appendChild(nm);
+        d2.appendChild(body);
+        rg.appendChild(d2);
+      });
+    })
+    .catch(function(){ /* stay silent — curated reviews still show */ });
+})();
+
 
 function setLbImage(src,alt){
   const img=document.getElementById('lbImg');
