@@ -1336,7 +1336,7 @@
     <div class="oc-check">✓</div>
     <div class="oc-eyebrow">Order Confirmed</div>
     <h2 id="ocTitle">Thank you for your order!</h2>
-    <p class="oc-lead">Your payment went through and your order is confirmed. Marmee will begin handcrafting your blanket right away — most orders are ready to ship within a few days.</p>
+    <p class="oc-lead" id="ocLead">Your payment went through and your order is confirmed. Your blanket is made and ready to go — Marmee will get it packed and on its way to you soon.</p>
     <img id="ocThumb" class="oc-thumb" alt="Your blanket" hidden>
     <div class="oc-summary" id="ocSummary" hidden>
       <div class="oc-row"><span>Order</span><span id="ocOrder"></span></div>
@@ -1628,6 +1628,14 @@ document.querySelectorAll('#nl a').forEach(a=>a.addEventListener('click',()=>doc
         }
         set('ocOrder','#'+d.order);
         set('ocItem', d.item);
+        var lead=document.getElementById('ocLead');
+        if(lead){
+          if(/^Custom/i.test(d.item||'')){
+            lead.textContent="Your payment went through and your order is confirmed. Marmee will begin handcrafting your blanket right away and get it on its way to you as soon as it's ready.";
+          } else {
+            lead.textContent='Your payment went through and your order is confirmed. Your blanket is made and ready to go — Marmee will get it packed and on its way to you soon.';
+          }
+        }
         if(d.spec){ set('ocSpec', d.spec); } else { hide('ocSpecRow'); }
         if(d.discount>0){ set('ocDisc','\u2212'+fmt(d.discount)); } else { hide('ocDiscRow'); }
         set('ocTotal', fmt(d.total));
