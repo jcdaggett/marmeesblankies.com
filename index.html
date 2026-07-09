@@ -298,6 +298,13 @@
   .oc-contact{font-size:.9rem;margin-bottom:1.5rem}
   .oc-btn{display:inline-block;background:var(--gold);color:var(--ink);border:none;border-radius:999px;padding:.8rem 1.8rem;font-size:.95rem;font-weight:700;cursor:pointer;transition:.2s}
   .oc-btn:hover{background:#d8b97f;transform:translateY(-2px)}
+  /* Embedded Stripe checkout modal */
+  .co{position:fixed;inset:0;z-index:130;display:none;align-items:flex-start;justify-content:center;padding:2.2rem 1rem;background:rgba(59,53,46,.6);backdrop-filter:blur(3px);overflow-y:auto}
+  .co.open{display:flex}
+  .co-card{background:var(--cream);border-radius:16px;max-width:640px;width:100%;padding:1.15rem;box-shadow:0 30px 70px var(--shadow);position:relative;margin:auto}
+  .co-close{position:absolute;top:-14px;right:-14px;width:38px;height:38px;border-radius:50%;background:var(--ink);color:var(--cream);border:none;font-size:1.5rem;line-height:1;cursor:pointer;z-index:2;box-shadow:0 6px 16px var(--shadow)}
+  .co-close:hover{background:#2c2721}
+  #checkout{min-height:300px}
 </style>
 <!-- Structured data: keep in sync with the ready[] product array below.
      Prices here MUST match visible prices or Google drops rich-result eligibility. -->
@@ -1096,6 +1103,7 @@
  ]
 }
 </script>
+<script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
 
@@ -1343,6 +1351,13 @@
   </div>
 </div>
 
+<div class="co" id="checkoutModal" role="dialog" aria-modal="true" aria-label="Secure checkout">
+  <div class="co-card">
+    <button class="co-close" id="coClose" aria-label="Close checkout">&times;</button>
+    <div id="checkout"><!-- Stripe embedded checkout mounts here --></div>
+  </div>
+</div>
+
 </main>
 <footer><div class="wrap">
   <div class="foot-inner">
@@ -1448,14 +1463,12 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLightbox();});
 /* Buy a ready-made blanket via Stripe (uses same Worker as configurator) */
 async function buyReadyMade(p){
   const amount=parseInt(p.price.replace(/[^0-9]/g,''),10)*100;
-  if(!WORKER_URL){alert("Checkout isn't connected yet.\n\n"+p.name+" — "+p.price+"\n\n(Add your Stripe Worker URL to go live — see STRIPE-SETUP.txt)");return;}
   const buy=document.getElementById('lbBuy');buy.textContent='Connecting…';buy.disabled=true;
   try{
-    const r=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({label:'Ready-Made: '+p.name,front:p.name,back:'—',size:p.tag,edge:'—',img:p.imgs[0],amount})});
-    const d=await r.json();
-    if(d.url)location.href=d.url;else throw new Error(d.error||'Checkout failed');
-  }catch(err){alert('Sorry, checkout had a problem: '+err.message);buy.textContent='Buy This One — '+p.price;buy.disabled=false;}
+    await openCheckout({label:'Ready-Made: '+p.name,front:p.name,back:'—',size:p.tag,edge:'—',img:p.imgs[0],amount});
+    closeLightbox();
+  }catch(err){alert('Sorry, checkout had a problem: '+err.message);}
+  buy.textContent='Buy This One — '+p.price;buy.disabled=false;
 }
 
 /* ===== CONFIGURATOR ===== */
@@ -1530,22 +1543,42 @@ update();
 /* CHECKOUT — sends the configuration to the Stripe Worker.
    Set WORKER_URL to your deployed Cloudflare Worker endpoint. */
 const WORKER_URL = "https://marmees-checkout-2.jesse-daggett.workers.dev"; // deployed Cloudflare Worker
+const STRIPE_PK = "pk_live_51TfnkB0Lt45H98S1wEfOfgl6pUpBa5h3Oxcq7Obw456H9hyIPDgJOKCAtD7eib7IUdunncUvH1QLQEW6VyDolzha00DIo9H8OF";
+let _stripe=null,_embedded=null;
+function _getStripe(){ if(!_stripe && window.Stripe){ _stripe=Stripe(STRIPE_PK); } return _stripe; }
+/* Create an embedded Checkout session on the Worker and mount it in the modal. */
+async function openCheckout(order){
+  const s=_getStripe();
+  if(!s) throw new Error('Payment is still loading — try again in a moment.');
+  const r=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(order)});
+  const d=await r.json();
+  if(!d.clientSecret) throw new Error(d.error||'Checkout failed');
+  if(_embedded){ try{_embedded.destroy();}catch(e){} _embedded=null; }
+  document.getElementById('checkoutModal').classList.add('open');
+  document.body.style.overflow='hidden';
+  _embedded=await s.initEmbeddedCheckout({clientSecret:d.clientSecret});
+  _embedded.mount('#checkout');
+}
+function closeCheckout(){
+  document.getElementById('checkoutModal').classList.remove('open');
+  document.body.style.overflow='';
+  if(_embedded){ try{_embedded.destroy();}catch(e){} _embedded=null; }
+}
+document.getElementById('coClose').onclick=closeCheckout;
+document.getElementById('checkoutModal').addEventListener('click',function(e){if(e.target.id==='checkoutModal')closeCheckout();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){var m=document.getElementById('checkoutModal');if(m&&m.classList.contains('open'))closeCheckout();}});
+
 document.getElementById('cfgBuy').onclick = async ()=>{
   const order = {
     front: state.front.name, back: state.back.name, size: state.size.name+' '+state.size.dim,
     edge: state.edge.name, amount: total()*100,
     label: `Custom ${state.size.name} blanket — ${state.front.name} / ${state.back.name}`
   };
-  if(!WORKER_URL){
-    alert("Checkout isn't connected yet.\n\nYour blanket:\n• "+order.size+"\n• Front: "+order.front+"\n• Back: "+order.back+"\n• Edge: "+order.edge+"\n• Total: $"+total()+"\n\n(Add your Stripe Worker URL to go live — see STRIPE-SETUP.txt)");
-    return;
-  }
   const btn = document.getElementById('cfgBuy'); btn.textContent='Connecting…'; btn.disabled=true;
   try{
-    const r = await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(order)});
-    const d = await r.json();
-    if(d.url) location.href = d.url; else throw new Error(d.error||'Checkout failed');
-  }catch(err){ alert('Sorry, checkout had a problem: '+err.message); btn.textContent='Make This Blanket — $'+total(); btn.disabled=false; }
+    await openCheckout(order);
+  }catch(err){ alert('Sorry, checkout had a problem: '+err.message); }
+  btn.textContent='Make This Blanket — $'+total(); btn.disabled=false;
 };
 
 
