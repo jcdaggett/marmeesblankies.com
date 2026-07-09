@@ -288,6 +288,7 @@
   .oc-card p{color:var(--ink-soft);font-size:.98rem;line-height:1.6;margin:0 0 1.5rem}
   .oc-card p a{color:var(--rose-deep);font-weight:600}
   .oc-lead{margin-bottom:1.3rem}
+  .oc-thumb{width:130px;height:130px;object-fit:cover;border-radius:14px;border:1px solid var(--line);margin:0 auto 1.2rem;display:block;box-shadow:0 8px 20px var(--shadow)}
   .oc-summary{text-align:left;background:var(--cream-deep);border:1px solid var(--line);border-radius:12px;padding:1rem 1.15rem;margin:0 0 1.3rem}
   .oc-row{display:flex;justify-content:space-between;gap:1rem;font-size:.92rem;color:var(--ink-soft);padding:.32rem 0;line-height:1.4}
   .oc-row>span:first-child{color:var(--ink-soft);flex:0 0 auto;font-weight:600}
@@ -1328,6 +1329,7 @@
     <div class="oc-eyebrow">Order Confirmed</div>
     <h2 id="ocTitle">Thank you for your order!</h2>
     <p class="oc-lead">Your payment went through and your order is confirmed. Marmee will begin handcrafting your blanket right away — most orders are ready to ship within a few days.</p>
+    <img id="ocThumb" class="oc-thumb" alt="Your blanket" hidden>
     <div class="oc-summary" id="ocSummary" hidden>
       <div class="oc-row"><span>Order</span><span id="ocOrder"></span></div>
       <div class="oc-row"><span>Item</span><span id="ocItem"></span></div>
@@ -1450,7 +1452,7 @@ async function buyReadyMade(p){
   const buy=document.getElementById('lbBuy');buy.textContent='Connecting…';buy.disabled=true;
   try{
     const r=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({label:'Ready-Made: '+p.name,front:p.name,back:'—',size:p.tag,edge:'—',name:'',amount})});
+      body:JSON.stringify({label:'Ready-Made: '+p.name,front:p.name,back:'—',size:p.tag,edge:'—',img:p.imgs[0],amount})});
     const d=await r.json();
     if(d.url)location.href=d.url;else throw new Error(d.error||'Checkout failed');
   }catch(err){alert('Sorry, checkout had a problem: '+err.message);buy.textContent='Buy This One — '+p.price;buy.disabled=false;}
@@ -1587,6 +1589,10 @@ document.querySelectorAll('#nl a').forEach(a=>a.addEventListener('click',()=>doc
       .then(function(r){return r.json();})
       .then(function(d){
         if(!d || d.error) return;
+        if(d.img){
+          var t=document.getElementById('ocThumb');
+          if(t){ t.onerror=function(){t.hidden=true;}; t.src='img/'+d.img; t.hidden=false; }
+        }
         set('ocOrder','#'+d.order);
         set('ocItem', d.item);
         if(d.spec){ set('ocSpec', d.spec); } else { hide('ocSpecRow'); }
