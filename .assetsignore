@@ -6,6 +6,7 @@
 DEPLOY-INSTRUCTIONS.txt
 STRIPE-SETUP.txt
 stripe-worker.js
+reviews-worker.js
 .wrangler
 .wrangler/**
 wrangler.jsonc
