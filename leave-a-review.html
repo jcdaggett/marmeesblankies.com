@@ -63,6 +63,11 @@
     <label for="review">Your review</label>
     <textarea id="review" maxlength="600" required placeholder="Tell us what you think..."></textarea>
 
+    <label for="photo">Add a photo <span style="font-weight:400;color:var(--ink-soft)">(optional)</span></label>
+    <input type="file" id="photo" accept="image/jpeg,image/png,image/webp">
+    <img id="photoPreview" alt="" style="display:none;margin-top:.8rem;max-width:100%;max-height:220px;border-radius:10px;border:1px solid var(--line)">
+    <div id="photoErr" class="msg err" style="display:none;margin-top:.5rem;font-size:.9rem"></div>
+
     <!-- honeypot field, hidden from real users -->
     <input type="text" id="website" name="website" class="hp" tabindex="-1" autocomplete="off">
 
@@ -90,6 +95,39 @@ starsWrap.querySelectorAll('button').forEach(btn=>{
   });
 });
 
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+const photoInput = document.getElementById('photo');
+const photoPreview = document.getElementById('photoPreview');
+const photoErr = document.getElementById('photoErr');
+
+photoInput.addEventListener('change', ()=>{
+  photoErr.style.display = 'none';
+  photoPreview.style.display = 'none';
+  const file = photoInput.files[0];
+  if (!file) return;
+
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    photoErr.textContent = 'Please choose a JPEG, PNG, or WEBP image.';
+    photoErr.style.display = 'block';
+    photoInput.value = '';
+    return;
+  }
+  if (file.size > MAX_PHOTO_BYTES) {
+    photoErr.textContent = 'Photo must be under 5MB.';
+    photoErr.style.display = 'block';
+    photoInput.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    photoPreview.src = reader.result;
+    photoPreview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+});
+
 document.getElementById('revForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
   const msg = document.getElementById('msg');
@@ -114,13 +152,15 @@ document.getElementById('revForm').addEventListener('submit', async (e)=>{
     return;
   }
 
+  const fd = new FormData();
+  fd.append('name', name);
+  fd.append('rating', String(rating));
+  fd.append('review', review);
+  if (photoInput.files[0]) fd.append('photo', photoInput.files[0]);
+
   btn.disabled = true; btn.textContent = 'Submitting...';
   try {
-    const r = await fetch(REVIEWS_WORKER_URL, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ name, rating, review })
-    });
+    const r = await fetch(REVIEWS_WORKER_URL, { method: 'POST', body: fd });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || 'Submission failed');
     document.getElementById('revForm').style.display = 'none';
