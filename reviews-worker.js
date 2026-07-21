@@ -3,12 +3,12 @@
  *
  * POST /                        → customer submits a review (from leave-a-review.html).
  *                                 multipart/form-data with fields: name, review, rating,
- *                                 and optional "photo" file. Stored in KV as pending
- *                                 (approved:false); photo (if any) stored in R2.
+ *                                 and up to 3 "photo" files. Stored in KV as pending
+ *                                 (approved:false); photos (if any) stored in R2.
  * GET  /?list=approved          → PUBLIC. Returns approved reviews for the site.
  * GET  /?list=all&key=ADMIN_KEY → ADMIN. Returns all reviews (pending + approved).
  * POST /?action=approve&key=... → ADMIN. Body {id}. Marks a review approved (publishes it).
- * POST /?action=delete&key=...  → ADMIN. Body {id}. Deletes a review (and its photo in R2).
+ * POST /?action=delete&key=...  → ADMIN. Body {id}. Deletes a review (and its photos in R2).
  *
  * REVIEWS = KV namespace binding (marmees-reviews).
  * REVIEW_PHOTOS = R2 bucket binding (marmees-review-photos).
@@ -18,7 +18,8 @@
  * See REVIEWS-SETUP.txt.
  */
 
-const MAX_PHOTO_BYTES = 5 * 1024 * 1024; // 5MB
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024; // 5MB each
+const MAX_PHOTOS = 3;
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 export default {
@@ -59,8 +60,9 @@ export default {
         const raw = await env.REVIEWS.get(id);
         if (raw) {
           const e = JSON.parse(raw);
-          if (e.img) {
-            const objectKey = e.img.split("/").pop();
+          const urls = e.imgs || (e.img ? [e.img] : []);
+          for (const url of urls) {
+            const objectKey = url.split("/").pop();
             await env.REVIEW_PHOTOS.delete(objectKey).catch(() => {});
           }
         }
@@ -94,29 +96,35 @@ export default {
     }
 
     const key = `review:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`;
-    let img = "";
+    const imgs = [];
 
-    const photo = form.get("photo");
-    if (photo && typeof photo === "object" && photo.size > 0) {
+    const photos = form.getAll("photo").filter(p => p && typeof p === "object" && p.size > 0);
+    if (photos.length > MAX_PHOTOS) {
+      return json({ error: `Please choose up to ${MAX_PHOTOS} photos` }, 400, cors);
+    }
+
+    let i = 0;
+    for (const photo of photos) {
       if (!ALLOWED_TYPES.includes(photo.type)) {
-        return json({ error: "Photo must be JPEG, PNG, or WEBP" }, 400, cors);
+        return json({ error: "Photos must be JPEG, PNG, or WEBP" }, 400, cors);
       }
       if (photo.size > MAX_PHOTO_BYTES) {
-        return json({ error: "Photo must be under 5MB" }, 400, cors);
+        return json({ error: "Each photo must be under 5MB" }, 400, cors);
       }
       const ext = photo.type === "image/png" ? "png" : photo.type === "image/webp" ? "webp" : "jpg";
-      const objectKey = `${key.replace("review:", "")}.${ext}`;
+      const objectKey = `${key.replace("review:", "")}-${i}.${ext}`;
       await env.REVIEW_PHOTOS.put(objectKey, await photo.arrayBuffer(), {
         httpMetadata: { contentType: photo.type },
       });
-      img = `${env.REVIEW_PHOTOS_PUBLIC_URL}/${objectKey}`;
+      imgs.push(`${env.REVIEW_PHOTOS_PUBLIC_URL}/${objectKey}`);
+      i++;
     }
 
     const entry = {
       name,
       review,
       rating,
-      img,
+      imgs,
       submittedAt: new Date().toISOString(),
       approved: false,
     };
@@ -147,7 +155,7 @@ async function collect(env, approvedOnly) {
         name: e.name,
         review: e.review,
         rating: e.rating,
-        img: e.img || "",
+        imgs: e.imgs || (e.img ? [e.img] : []),
         submittedAt: e.submittedAt,
         approved: !!e.approved,
       });
