@@ -118,6 +118,7 @@ function card(x){
       <span class="pill ${live?'live':'pending'}">${live?'Live':'Pending'}</span>
     </div>
     <div class="when">${fmtDate(x.submittedAt)}</div>
+    ${x.img ? `<img src="${esc(x.img)}" alt="" style="max-width:180px;max-height:180px;border-radius:8px;border:1px solid var(--line);display:block;margin:.6rem 0">` : ''}
     <div class="quote">"${esc(x.review)}"</div>
     <div class="actions">
       ${live ? '' : `<button class="btn-approve" data-approve="${esc(x.id)}">Approve &amp; publish</button>`}
