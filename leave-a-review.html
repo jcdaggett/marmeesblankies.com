@@ -63,9 +63,9 @@
     <label for="review">Your review</label>
     <textarea id="review" maxlength="600" required placeholder="Tell us what you think..."></textarea>
 
-    <label for="photo">Add a photo <span style="font-weight:400;color:var(--ink-soft)">(optional)</span></label>
-    <input type="file" id="photo" accept="image/jpeg,image/png,image/webp">
-    <img id="photoPreview" alt="" style="display:none;margin-top:.8rem;max-width:100%;max-height:220px;border-radius:10px;border:1px solid var(--line)">
+    <label for="photo">Add photos <span style="font-weight:400;color:var(--ink-soft)">(optional, up to 3)</span></label>
+    <input type="file" id="photo" accept="image/jpeg,image/png,image/webp" multiple>
+    <div id="photoPreviews" style="display:flex;gap:.6rem;margin-top:.8rem;flex-wrap:wrap"></div>
     <div id="photoErr" class="msg err" style="display:none;margin-top:.5rem;font-size:.9rem"></div>
 
     <!-- honeypot field, hidden from real users -->
@@ -96,36 +96,57 @@ starsWrap.querySelectorAll('button').forEach(btn=>{
 });
 
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+const MAX_PHOTOS = 3;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 const photoInput = document.getElementById('photo');
-const photoPreview = document.getElementById('photoPreview');
+const photoPreviews = document.getElementById('photoPreviews');
 const photoErr = document.getElementById('photoErr');
+let selectedPhotos = [];
+
+function renderPreviews(){
+  photoPreviews.innerHTML = '';
+  selectedPhotos.forEach((file, idx)=>{
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'position:relative';
+      wrap.innerHTML = `<img src="${reader.result}" alt="" style="width:90px;height:90px;object-fit:cover;border-radius:10px;border:1px solid var(--line)">
+        <button type="button" data-idx="${idx}" style="position:absolute;top:-8px;right:-8px;background:var(--ink);color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:.8rem;line-height:1">×</button>`;
+      wrap.querySelector('button').addEventListener('click', ()=>{
+        selectedPhotos.splice(idx, 1);
+        renderPreviews();
+      });
+      photoPreviews.appendChild(wrap);
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
 photoInput.addEventListener('change', ()=>{
   photoErr.style.display = 'none';
-  photoPreview.style.display = 'none';
-  const file = photoInput.files[0];
-  if (!file) return;
+  const incoming = Array.from(photoInput.files);
+  photoInput.value = ''; // reset so the same file can be re-picked later
 
-  if (!ALLOWED_TYPES.includes(file.type)) {
-    photoErr.textContent = 'Please choose a JPEG, PNG, or WEBP image.';
-    photoErr.style.display = 'block';
-    photoInput.value = '';
-    return;
+  for (const file of incoming) {
+    if (selectedPhotos.length >= MAX_PHOTOS) {
+      photoErr.textContent = `You can add up to ${MAX_PHOTOS} photos.`;
+      photoErr.style.display = 'block';
+      break;
+    }
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      photoErr.textContent = 'Please choose JPEG, PNG, or WEBP images.';
+      photoErr.style.display = 'block';
+      continue;
+    }
+    if (file.size > MAX_PHOTO_BYTES) {
+      photoErr.textContent = 'Each photo must be under 5MB.';
+      photoErr.style.display = 'block';
+      continue;
+    }
+    selectedPhotos.push(file);
   }
-  if (file.size > MAX_PHOTO_BYTES) {
-    photoErr.textContent = 'Photo must be under 5MB.';
-    photoErr.style.display = 'block';
-    photoInput.value = '';
-    return;
-  }
-  const reader = new FileReader();
-  reader.onload = ()=>{
-    photoPreview.src = reader.result;
-    photoPreview.style.display = 'block';
-  };
-  reader.readAsDataURL(file);
+  renderPreviews();
 });
 
 document.getElementById('revForm').addEventListener('submit', async (e)=>{
@@ -156,7 +177,7 @@ document.getElementById('revForm').addEventListener('submit', async (e)=>{
   fd.append('name', name);
   fd.append('rating', String(rating));
   fd.append('review', review);
-  if (photoInput.files[0]) fd.append('photo', photoInput.files[0]);
+  selectedPhotos.forEach(file => fd.append('photo', file));
 
   btn.disabled = true; btn.textContent = 'Submitting...';
   try {
