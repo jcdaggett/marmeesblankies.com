@@ -2,16 +2,24 @@
  * Marmee's Blankets — Review Worker
  *
  * POST /                        → customer submits a review (from leave-a-review.html).
- *                                 Stored in KV as pending (approved:false).
+ *                                 multipart/form-data with fields: name, review, rating,
+ *                                 and optional "photo" file. Stored in KV as pending
+ *                                 (approved:false); photo (if any) stored in R2.
  * GET  /?list=approved          → PUBLIC. Returns approved reviews for the site.
  * GET  /?list=all&key=ADMIN_KEY → ADMIN. Returns all reviews (pending + approved).
  * POST /?action=approve&key=... → ADMIN. Body {id}. Marks a review approved (publishes it).
- * POST /?action=delete&key=...  → ADMIN. Body {id}. Deletes a review.
+ * POST /?action=delete&key=...  → ADMIN. Body {id}. Deletes a review (and its photo in R2).
  *
  * REVIEWS = KV namespace binding (marmees-reviews).
+ * REVIEW_PHOTOS = R2 bucket binding (marmees-review-photos).
+ * REVIEW_PHOTOS_PUBLIC_URL = env var, the bucket's public base URL
+ *   (e.g. https://pub-XXXX.r2.dev) — no trailing slash.
  * ADMIN_KEY = encrypted Worker secret (the moderation password).
  * See REVIEWS-SETUP.txt.
  */
+
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024; // 5MB
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 export default {
   async fetch(request, env) {
@@ -48,6 +56,14 @@ export default {
       const id = (b.id || "").toString();
       if (!id.startsWith("review:")) return json({ error: "Bad id" }, 400, cors);
       if (action === "delete") {
+        const raw = await env.REVIEWS.get(id);
+        if (raw) {
+          const e = JSON.parse(raw);
+          if (e.img) {
+            const objectKey = e.img.split("/").pop();
+            await env.REVIEW_PHOTOS.delete(objectKey).catch(() => {});
+          }
+        }
         await env.REVIEWS.delete(id);
         return json({ ok: true }, 200, cors);
       }
@@ -59,28 +75,52 @@ export default {
       return json({ ok: true }, 200, cors);
     }
 
-    // ---------- POST: new review submission ----------
-    let body;
-    try { body = await request.json(); }
+    // ---------- POST: new review submission (multipart/form-data) ----------
+    const contentType = request.headers.get("content-type") || "";
+    if (!contentType.includes("multipart/form-data")) {
+      return json({ error: "Expected multipart/form-data" }, 400, cors);
+    }
+
+    let form;
+    try { form = await request.formData(); }
     catch { return json({ error: "Bad request" }, 400, cors); }
 
-    const name = (body.name || "").toString().trim().slice(0, 60);
-    const review = (body.review || "").toString().trim().slice(0, 600);
-    const rating = parseInt(body.rating, 10);
+    const name = (form.get("name") || "").toString().trim().slice(0, 60);
+    const review = (form.get("review") || "").toString().trim().slice(0, 600);
+    const rating = parseInt(form.get("rating"), 10);
 
     if (!name || !review || !rating || rating < 1 || rating > 5) {
       return json({ error: "Missing or invalid fields" }, 400, cors);
+    }
+
+    const key = `review:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`;
+    let img = "";
+
+    const photo = form.get("photo");
+    if (photo && typeof photo === "object" && photo.size > 0) {
+      if (!ALLOWED_TYPES.includes(photo.type)) {
+        return json({ error: "Photo must be JPEG, PNG, or WEBP" }, 400, cors);
+      }
+      if (photo.size > MAX_PHOTO_BYTES) {
+        return json({ error: "Photo must be under 5MB" }, 400, cors);
+      }
+      const ext = photo.type === "image/png" ? "png" : photo.type === "image/webp" ? "webp" : "jpg";
+      const objectKey = `${key.replace("review:", "")}.${ext}`;
+      await env.REVIEW_PHOTOS.put(objectKey, await photo.arrayBuffer(), {
+        httpMetadata: { contentType: photo.type },
+      });
+      img = `${env.REVIEW_PHOTOS_PUBLIC_URL}/${objectKey}`;
     }
 
     const entry = {
       name,
       review,
       rating,
+      img,
       submittedAt: new Date().toISOString(),
       approved: false,
     };
 
-    const key = `review:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`;
     await env.REVIEWS.put(key, JSON.stringify(entry));
 
     return json({ ok: true }, 200, cors);
@@ -107,6 +147,7 @@ async function collect(env, approvedOnly) {
         name: e.name,
         review: e.review,
         rating: e.rating,
+        img: e.img || "",
         submittedAt: e.submittedAt,
         approved: !!e.approved,
       });
