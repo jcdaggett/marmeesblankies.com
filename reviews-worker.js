@@ -136,8 +136,10 @@ export default {
 };
 
 function authed(url, env) {
-  const key = url.searchParams.get("key");
-  return !!(key && env.ADMIN_KEY && key === env.ADMIN_KEY);
+  const key = (url.searchParams.get("key") || "").trim();
+  if (!key || !env.ADMIN_KEY) return false;
+  const validKeys = env.ADMIN_KEY.split(",").map(k => k.trim()).filter(Boolean);
+  return validKeys.includes(key);
 }
 
 async function collect(env, approvedOnly) {
