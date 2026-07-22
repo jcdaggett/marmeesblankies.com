@@ -1451,6 +1451,10 @@ const REVIEWS_WORKER_URL = "https://marmees-reviews.jesse-daggett.workers.dev";
         }
         var body = document.createElement('div');
         body.className = 'rev-body';
+        var vb = document.createElement('div');
+        vb.className = 'rev-verified';
+        vb.textContent = '✓ Verified Review';
+        body.appendChild(vb);
         var st = document.createElement('div');
         st.className = 'rev-stars';
         st.textContent = '★★★★★☆☆☆☆☆'.slice(5-n, 10-n);
