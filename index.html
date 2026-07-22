@@ -1434,6 +1434,21 @@ const REVIEWS_WORKER_URL = "https://marmees-reviews.jesse-daggett.workers.dev";
         var n = Math.max(1, Math.min(5, parseInt(rev.rating,10) || 5));
         var d2 = document.createElement('div');
         d2.className = 'rev reveal';
+        var imgs = Array.isArray(rev.imgs) ? rev.imgs : (rev.img ? [rev.img] : []);
+        if(imgs.length){
+          var imgWrap = document.createElement('div');
+          imgWrap.className = 'rev-img';
+          imgs.forEach(function(url){
+            var im = document.createElement('img');
+            im.src = url;
+            im.alt = "A happy family with their Marmee's blanket";
+            im.loading = 'lazy';
+            im.style.width = imgs.length > 1 ? 'calc(50% - 4px)' : '100%';
+            im.style.display = 'inline-block';
+            imgWrap.appendChild(im);
+          });
+          d2.appendChild(imgWrap);
+        }
         var body = document.createElement('div');
         body.className = 'rev-body';
         var st = document.createElement('div');
