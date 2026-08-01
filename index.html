@@ -131,9 +131,12 @@
   .lb-card{background:var(--cream);border-radius:16px;max-width:920px;width:100%;max-height:92vh;overflow:hidden;display:grid;grid-template-columns:1.3fr .9fr;box-shadow:0 30px 80px rgba(0,0,0,.5);animation:lbpop .3s ease}
   @keyframes lbpop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
   .lb-imgwrap{background:#2b2620;overflow:hidden;position:relative;cursor:zoom-in;display:flex;align-items:center;justify-content:center}
-  .lb-imgwrap img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease;transform-origin:center}
+  .lb-imgwrap img{width:100%;height:100%;object-fit:cover;transition:transform .25s ease;transform-origin:center}
   .lb-imgwrap.zoomed{cursor:zoom-out}
-  .lb-imgwrap.zoomed img{transform:scale(2)}
+  .lb-imgwrap.zoomed img{transition:transform .1s linear}
+  .lb-zoom-hint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.55);color:#fff;font-size:.75rem;padding:.35rem .8rem;border-radius:20px;pointer-events:none;opacity:0;transition:opacity .25s}
+  .lb-imgwrap:hover .lb-zoom-hint{opacity:1}
+  .lb-imgwrap.zoomed .lb-zoom-hint{opacity:0}
   .lb-info{padding:2rem 2rem 1.8rem;display:flex;flex-direction:column}
   .lb-tag{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--rose-deep);margin-bottom:.6rem}
   .lb-info h3{font-family:'Fraunces',serif;font-size:1.9rem;margin-bottom:.7rem;color:var(--ink)}
@@ -1326,6 +1329,7 @@
     <div class="lb-imgwrap" id="lbWrap">
       <button class="lb-close" id="lbClose" aria-label="Close">×</button>
       <img id="lbImg" src="" alt="">
+      <div class="lb-zoom-hint" id="lbZoomHint">Click to zoom · click again for closer detail</div>
     </div>
     <div class="lb-info">
       <div class="lb-tag" id="lbTag"></div>
@@ -1510,6 +1514,8 @@ function setLbImage(src,alt){
   img.onerror=()=>img.classList.add('broken');
   img.src='img/'+src; img.alt=alt;
   document.getElementById('lbWrap').classList.remove('zoomed');
+  img.style.transform='scale(1)'; img.style.transformOrigin='center';
+  zoomStep=0;
 }
 function openLightbox(i){
   const p=ready[i];
@@ -1537,7 +1543,39 @@ function openLightbox(i){
   document.body.style.overflow='hidden';
 }
 function closeLightbox(){document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
-document.getElementById('lbWrap').onclick=()=>document.getElementById('lbWrap').classList.toggle('zoomed');
+/* Multi-level zoom: click cycles 1x -> 2.2x -> 3.6x -> back to 1x.
+   While zoomed, the image pans to follow the cursor so any part of the
+   fabric/print can be inspected up close, not just the center. */
+const ZOOM_LEVELS = [1, 2.2, 3.6];
+let zoomStep = 0;
+const lbWrap = document.getElementById('lbWrap');
+const lbImgEl = document.getElementById('lbImg');
+
+function applyZoom(){
+  const scale = ZOOM_LEVELS[zoomStep];
+  if(scale===1){
+    lbWrap.classList.remove('zoomed');
+    lbImgEl.style.transform = 'scale(1)';
+    lbImgEl.style.transformOrigin = 'center';
+  } else {
+    lbWrap.classList.add('zoomed');
+    lbImgEl.style.transform = `scale(${scale})`;
+  }
+}
+lbWrap.onclick=(e)=>{
+  // avoid triggering zoom when clicking the close button
+  if(e.target.id==='lbClose') return;
+  zoomStep = (zoomStep+1) % ZOOM_LEVELS.length;
+  applyZoom();
+};
+lbWrap.onmousemove=(e)=>{
+  if(zoomStep===0) return;
+  const rect = lbWrap.getBoundingClientRect();
+  const x = ((e.clientX-rect.left)/rect.width)*100;
+  const y = ((e.clientY-rect.top)/rect.height)*100;
+  lbImgEl.style.transformOrigin = `${x}% ${y}%`;
+};
+lbWrap.onmouseleave=()=>{ if(zoomStep>0){ lbImgEl.style.transformOrigin='center'; } };
 document.getElementById('lbClose').onclick=closeLightbox;
 document.getElementById('lightbox').onclick=e=>{if(e.target.id==='lightbox')closeLightbox();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLightbox();});
