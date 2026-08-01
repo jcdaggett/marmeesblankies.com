@@ -109,6 +109,11 @@
   /* shared product grid */
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px 28px}
   .card{background:var(--cream);border-radius:14px;overflow:hidden;border:1px solid var(--line);transition:transform .35s,box-shadow .35s;cursor:pointer;opacity:0;transform:translateY(26px)}
+  .cat-filters{display:flex;flex-wrap:wrap;gap:.7rem;margin:1.8rem 0 2.4rem}
+  .cat-btn{font-family:'Karla',sans-serif;font-size:.92rem;font-weight:700;letter-spacing:.02em;color:var(--ink-soft);background:var(--cream-deep);border:1px solid var(--line);border-radius:40px;padding:.6rem 1.35rem;cursor:pointer;transition:background .2s,color .2s,border-color .2s,transform .2s}
+  .cat-btn:hover{transform:translateY(-1px);border-color:var(--ink-soft)}
+  .cat-btn.active{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+  .card.hide{display:none}
   .card.in{opacity:1;transform:none}
   .card:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 26px 50px var(--shadow)}
   .card-img{position:relative;overflow:hidden;aspect-ratio:4/4.3;background:var(--cream-deep)}
@@ -1167,6 +1172,7 @@
       <h2>One-of-a-kind, ready today</h2>
       <p>From travel blankets to cuddle blankets — each of these is already made and waiting, ready to ship right away.</p>
     </div>
+    <div class="cat-filters" id="catFilters"></div>
     <div class="grid" id="readyGrid"></div>
   </div>
 </section>
@@ -1398,7 +1404,7 @@ const ready=[
  {sku:'MB-LT-001',imgs:["MB-LT-001-rosewater-leopard-01.jpg"],tag:'Lap',name:'Rosewater Leopard',d:'Cream, brown, and blush-pink leopard print luxe cuddle lap throw.',full:'A cream, brown, and blush-pink leopard print on luxe cuddle plush, backed with smooth gray luxe cuddle. This piece has a turned, no-satin edge finish rather than a satin binding. Generous lap throw size. Handmade, one of a kind.',price:'$185',avail:'1 available'},
  {sku:'MB-TB-007',imgs:["MB-TB-007-pastel-hearts-01.jpg", "MB-TB-007-pastel-hearts-02-back.jpg"],tag:'Travel',name:'Pastel Hearts',d:'Pastel hearts on a gray ground, reversing to sculpted blue rose-swirl minky.',full:'Pastel hearts in pink, yellow, teal, and blue scattered across a soft gray ground, reversing to plush sculpted powder blue rose-swirl minky. Finished with a mint green satin binding. Travel size. Handmade, one of a kind.',price:'$72',avail:'1 available'},
 ];const g=document.getElementById('readyGrid');
-ready.forEach((p,i)=>{const a=document.createElement('div');a.className='card';a.tabIndex=0;
+ready.forEach((p,i)=>{const a=document.createElement('div');a.className='card';a.tabIndex=0;a.dataset.cat=p.tag;
  const count = p.imgs.length>1 ? `<span class="imgcount">⊞ ${p.imgs.length} photos</span>` : '';
  a.innerHTML=`<div class="card-img"><span class="tag">${p.tag}</span>${count}<span class="ph">${p.name}<br>${p.sku||''}</span><img src="img/${p.imgs[0]}" alt="${p.name}" loading="lazy" onerror="this.classList.add('broken')"></div>
  <div class="card-body"><h3>${p.name}</h3><div class="d">${p.d}</div>
@@ -1406,6 +1412,26 @@ ready.forEach((p,i)=>{const a=document.createElement('div');a.className='card';a
  a.onclick=()=>openLightbox(i);
  a.onkeydown=e=>{if(e.key==='Enter')openLightbox(i);};
  g.appendChild(a);});
+
+/* Category filters — built from whatever categories are actually in `ready`,
+   in first-appearance order, so new categories (e.g. Batch 3) show up automatically. */
+const cats = ['All'];
+ready.forEach(p=>{ if(!cats.includes(p.tag)) cats.push(p.tag); });
+const catBar = document.getElementById('catFilters');
+cats.forEach(cat=>{
+  const btn = document.createElement('button');
+  btn.className = 'cat-btn' + (cat==='All' ? ' active' : '');
+  btn.type = 'button';
+  btn.textContent = cat;
+  btn.onclick = ()=>{
+    catBar.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    g.querySelectorAll('.card').forEach(card=>{
+      card.classList.toggle('hide', cat!=='All' && card.dataset.cat!==cat);
+    });
+  };
+  catBar.appendChild(btn);
+});
 
 /* ===== REVIEWS =====
    PLACEHOLDER quotes — replace with REAL customer words. Names can be first-name + initial.
