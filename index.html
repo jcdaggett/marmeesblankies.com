@@ -1149,6 +1149,23 @@
 }
 </script>
 <script src="https://js.stripe.com/v3/"></script>
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '849016838145150');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=849016838145150&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
 </head>
 <body>
 
@@ -1937,6 +1954,20 @@ document.querySelectorAll('#nl a').forEach(a=>a.addEventListener('click',()=>doc
         set('ocTotal', fmt(d.total));
         if(d.email){ set('ocEmail', d.email); } else { hide('ocEmailRow'); }
         document.getElementById('ocSummary').hidden=false;
+
+        // Meta Pixel — fire Purchase once per order (guarded so a page
+        // refresh with the same session_id in the URL doesn't double-count).
+        var trackedKey = 'mb_purchase_tracked_' + sid;
+        var already = false;
+        try { already = localStorage.getItem(trackedKey) === '1'; } catch(e){}
+        if(!already && typeof fbq === 'function' && d.total){
+          fbq('track', 'Purchase', {
+            value: d.total/100,
+            currency: (d.currency||'USD').toUpperCase(),
+            content_name: d.item || ''
+          });
+          try { localStorage.setItem(trackedKey, '1'); } catch(e){}
+        }
       })
       .catch(function(){});
   }
