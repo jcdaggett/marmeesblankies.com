@@ -143,6 +143,25 @@
   .lb-size{font-size:.9rem;color:var(--ink-soft);font-weight:600;margin:-.5rem 0 1rem}
   .lb-info .lb-d{color:var(--ink-soft);font-size:1.02rem;margin-bottom:1.2rem;line-height:1.6}
   .lb-price{font-family:'Fraunces',serif;font-size:2rem;font-weight:600;color:var(--rose-deep)}
+
+  /* EXIT-INTENT OFFER */
+  .ei-overlay{position:fixed;inset:0;z-index:1100;background:rgba(40,34,28,.85);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}
+  .ei-overlay.open{display:flex}
+  .ei-card{position:relative;background:var(--cream);border-radius:18px;max-width:420px;width:100%;padding:2.4rem 2rem 2rem;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.5);animation:lbpop .3s ease}
+  .ei-close{position:absolute;top:14px;right:14px;background:none;border:none;font-size:1.6rem;color:var(--ink-soft);cursor:pointer;line-height:1;padding:.2rem .5rem}
+  .ei-close:hover{color:var(--ink)}
+  .ei-eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--rose-deep);margin-bottom:.5rem}
+  .ei-card h3{font-family:'Fraunces',serif;font-size:1.7rem;color:var(--ink);margin-bottom:.7rem;line-height:1.25}
+  .ei-card p{color:var(--ink-soft);font-size:.98rem;line-height:1.55;margin-bottom:1.4rem}
+  #eiForm{display:flex;flex-direction:column;gap:.7rem}
+  #eiEmail{font-family:'Karla',sans-serif;font-size:1rem;padding:.8rem 1rem;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+  #eiEmail:focus{outline:2px solid var(--gold);outline-offset:1px}
+  .ei-msg{font-size:.85rem;margin-top:.7rem;min-height:1.2em}
+  .ei-msg.err{color:#b3453a}
+  .ei-code{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:700;letter-spacing:.06em;color:var(--rose-deep);background:var(--cream-deep);border:1.5px dashed var(--rose-deep);border-radius:10px;padding:.8rem 1rem;margin:.6rem 0 1rem}
+  .ei-success .btn{width:100%}
+  .ei-fine{font-size:.82rem;color:var(--ink-soft);margin-top:.8rem;margin-bottom:0}
+  @media(max-width:480px){.ei-card{padding:2rem 1.4rem 1.6rem}}
   .lb-buy{width:100%;margin-top:auto}
 
   /* FAQ */
@@ -1756,6 +1775,74 @@ setTimeout(()=>document.querySelectorAll('.reveal:not(.in)').forEach(el=>el.clas
 const cio=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){const i=Array.from(g.children).indexOf(x.target);setTimeout(()=>x.target.classList.add('in'),(i%3)*90);cio.unobserve(x.target)}})},{threshold:.1});
 setTimeout(()=>document.querySelectorAll('.card').forEach(c=>cio.observe(c)),100);
 document.querySelectorAll('#nl a').forEach(a=>a.addEventListener('click',()=>document.getElementById('nl').classList.remove('open')));
+
+/* EXIT-INTENT OFFER — 15% off email capture */
+(function(){
+  const SESSION_KEY = 'mb_exit_offer_shown';
+  const overlay = document.getElementById('eiOverlay');
+  const closeBtn = document.getElementById('eiClose');
+  const form = document.getElementById('eiForm');
+  const emailInput = document.getElementById('eiEmail');
+  const msg = document.getElementById('eiMsg');
+  const submitBtn = document.getElementById('eiSubmit');
+  const bodyView = document.getElementById('eiBody');
+  const successView = document.getElementById('eiSuccess');
+  const codeEl = document.getElementById('eiCode');
+  const copyBtn = document.getElementById('eiCopy');
+  const SUBSCRIBERS_WORKER_URL = "https://marmees-subscribers.jesse-daggett.workers.dev";
+
+  function alreadyShown(){
+    try { return sessionStorage.getItem(SESSION_KEY) === '1'; } catch(e){ return false; }
+  }
+  function markShown(){
+    try { sessionStorage.setItem(SESSION_KEY, '1'); } catch(e){}
+  }
+  function openOffer(){
+    if(alreadyShown()) return;
+    overlay.classList.add('open');
+    markShown();
+  }
+  function closeOffer(){ overlay.classList.remove('open'); }
+
+  closeBtn.onclick = closeOffer;
+  overlay.onclick = (e)=>{ if(e.target===overlay) closeOffer(); };
+
+  // Exit-intent: cursor moves up toward the browser chrome (tabs/close/back button)
+  document.addEventListener('mouseout',(e)=>{
+    if(!e.relatedTarget && e.clientY <= 0){ openOffer(); }
+  });
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    msg.textContent=''; msg.className='ei-msg';
+    const email = emailInput.value.trim();
+    submitBtn.disabled = true; submitBtn.textContent = 'Submitting...';
+    try{
+      const r = await fetch(SUBSCRIBERS_WORKER_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ email, source:'exit_intent' })
+      });
+      const d = await r.json();
+      if(!r.ok) throw new Error(d.error || 'Something went wrong');
+      codeEl.textContent = d.code || 'WELCOME15';
+      bodyView.style.display='none';
+      successView.style.display='block';
+    } catch(err){
+      msg.textContent = "Couldn't save that — please try again.";
+      msg.className = 'ei-msg err';
+      submitBtn.disabled = false; submitBtn.textContent = 'Get My Code';
+    }
+  });
+
+  copyBtn.addEventListener('click', ()=>{
+    navigator.clipboard?.writeText(codeEl.textContent.trim()).then(()=>{
+      copyBtn.textContent = 'Copied!';
+      setTimeout(()=>copyBtn.textContent='Copy Code', 1800);
+    });
+  });
+})();
+
 </script>
 <script>
 (function(){
@@ -1811,5 +1898,29 @@ document.querySelectorAll('#nl a').forEach(a=>a.addEventListener('click',()=>doc
   }
 })();
 </script>
+<!-- EXIT-INTENT OFFER -->
+<div class="ei-overlay" id="eiOverlay">
+  <div class="ei-card">
+    <button class="ei-close" id="eiClose" aria-label="Close">×</button>
+    <div class="ei-body" id="eiBody">
+      <div class="ei-eyebrow">Before you go</div>
+      <h3>Get 15% off your first blanket</h3>
+      <p>Join our list for early looks at new one-of-a-kind blankets, and take 15% off today's order.</p>
+      <form id="eiForm">
+        <input type="email" id="eiEmail" placeholder="Your email address" required autocomplete="email">
+        <button type="submit" class="btn btn-gold" id="eiSubmit">Get My Code</button>
+      </form>
+      <div class="ei-msg" id="eiMsg"></div>
+    </div>
+    <div class="ei-success" id="eiSuccess" style="display:none">
+      <div class="ei-eyebrow">You're in!</div>
+      <h3>Here's your code</h3>
+      <div class="ei-code" id="eiCode">WELCOME15</div>
+      <button class="btn btn-ghost" id="eiCopy" type="button">Copy Code</button>
+      <p class="ei-fine">Enter it at checkout for 15% off.</p>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
