@@ -97,6 +97,12 @@ export default {
     params.append("metadata[size]", order.size || "");
     params.append("metadata[edge]", order.edge || "");
     params.append("metadata[img]", order.img || "");
+    // Attribution — which channel drove this sale (see index.html getAttribution())
+    params.append("metadata[utm_source]", order.utm_source || "");
+    params.append("metadata[utm_medium]", order.utm_medium || "");
+    params.append("metadata[utm_campaign]", order.utm_campaign || "");
+    params.append("metadata[utm_term]", order.utm_term || "");
+    params.append("metadata[utm_content]", order.utm_content || "");
     params.append("shipping_address_collection[allowed_countries][0]", "US");
     // Let customers enter a discount/promo code (e.g. THANKYOU20) at checkout.
     // Create the actual coupon + promotion code in the Stripe Dashboard —
