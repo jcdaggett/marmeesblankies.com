@@ -1329,7 +1329,7 @@
     <div class="lb-imgwrap" id="lbWrap">
       <button class="lb-close" id="lbClose" aria-label="Close">×</button>
       <img id="lbImg" src="" alt="">
-      <div class="lb-zoom-hint" id="lbZoomHint">Click to zoom · click again for closer detail</div>
+      <div class="lb-zoom-hint" id="lbZoomHint">Tap or click to zoom · drag or move to see detail</div>
     </div>
     <div class="lb-info">
       <div class="lb-tag" id="lbTag"></div>
@@ -1339,7 +1339,7 @@
       <div class="lb-d" id="lbDesc"></div>
       <div class="lb-price" id="lbPrice"></div>
       <button class="btn btn-gold lb-buy" id="lbBuy">Buy This One</button>
-      <div class="lb-hint">Click a thumbnail to switch · click photo to zoom · Esc to close</div>
+      <div class="lb-hint">Tap/click a thumbnail to switch · tap/click photo to zoom</div>
     </div>
   </div>
 </div>
@@ -1576,6 +1576,26 @@ lbWrap.onmousemove=(e)=>{
   lbImgEl.style.transformOrigin = `${x}% ${y}%`;
 };
 lbWrap.onmouseleave=()=>{ if(zoomStep>0){ lbImgEl.style.transformOrigin='center'; } };
+
+/* Mobile: tapping already cycles zoom via the click handler above (touch
+   devices fire a click on tap). This adds the equivalent of cursor-follow
+   panning for touch — drag a finger across the zoomed photo to pan to any
+   part of it, the standard pattern used in photo/product gallery apps. */
+function panFromTouch(touch){
+  const rect = lbWrap.getBoundingClientRect();
+  const x = Math.min(100, Math.max(0, ((touch.clientX-rect.left)/rect.width)*100));
+  const y = Math.min(100, Math.max(0, ((touch.clientY-rect.top)/rect.height)*100));
+  lbImgEl.style.transformOrigin = `${x}% ${y}%`;
+}
+lbWrap.addEventListener('touchstart',(e)=>{
+  if(zoomStep===0 || e.touches.length!==1) return;
+  panFromTouch(e.touches[0]);
+},{passive:true});
+lbWrap.addEventListener('touchmove',(e)=>{
+  if(zoomStep===0 || e.touches.length!==1) return;
+  e.preventDefault(); // stop page scroll while panning a zoomed photo
+  panFromTouch(e.touches[0]);
+},{passive:false});
 document.getElementById('lbClose').onclick=closeLightbox;
 document.getElementById('lightbox').onclick=e=>{if(e.target.id==='lightbox')closeLightbox();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLightbox();});
