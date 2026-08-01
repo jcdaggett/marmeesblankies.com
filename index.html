@@ -162,6 +162,20 @@
   .ei-success .btn{width:100%}
   .ei-fine{font-size:.82rem;color:var(--ink-soft);margin-top:.8rem;margin-bottom:0}
   @media(max-width:480px){.ei-card{padding:2rem 1.4rem 1.6rem}}
+
+  /* COOKIE CONSENT BANNER */
+  .ck-banner{position:fixed;left:0;right:0;bottom:0;z-index:1200;background:var(--ink);color:var(--cream);padding:1.1rem 1.3rem;display:none;box-shadow:0 -8px 30px rgba(0,0,0,.25)}
+  .ck-banner.open{display:block}
+  .ck-inner{max-width:920px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:1rem 1.4rem;justify-content:space-between}
+  .ck-text{flex:1 1 340px;font-size:.92rem;color:#e7ddca;line-height:1.5}
+  .ck-text a{color:var(--gold);text-decoration:underline}
+  .ck-btns{display:flex;gap:.7rem;flex:0 0 auto}
+  .ck-btns button{font-family:'Karla',sans-serif;font-weight:700;font-size:.88rem;border-radius:30px;padding:.6rem 1.2rem;cursor:pointer;border:1px solid transparent;transition:transform .2s,background .2s}
+  .ck-accept{background:var(--gold);color:var(--ink)}
+  .ck-accept:hover{background:#d8b97f;transform:translateY(-1px)}
+  .ck-decline{background:transparent;color:var(--cream);border-color:#5a5245}
+  .ck-decline:hover{border-color:var(--cream)}
+  @media(max-width:600px){.ck-inner{flex-direction:column;align-items:stretch}.ck-btns{justify-content:flex-end}}
   .lb-buy{width:100%;margin-top:auto}
 
   /* FAQ */
@@ -1149,22 +1163,28 @@
 }
 </script>
 <script src="https://js.stripe.com/v3/"></script>
-<!-- Meta Pixel Code -->
+<!-- Meta Pixel Code — loads ONLY after cookie consent is granted (see the
+     consent banner logic near the end of the page), not automatically. -->
 <script>
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '849016838145150');
-fbq('track', 'PageView');
+function mbLoadMetaPixel(){
+  if(window._mbPixelLoaded) return;
+  window._mbPixelLoaded = true;
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '849016838145150');
+  fbq('track', 'PageView');
+  var nsImg = document.createElement('img');
+  nsImg.height=1; nsImg.width=1; nsImg.style.display='none';
+  nsImg.src='https://www.facebook.com/tr?id=849016838145150&ev=PageView&noscript=1';
+  document.body && document.body.appendChild(nsImg);
+}
 </script>
-<noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=849016838145150&ev=PageView&noscript=1"
-/></noscript>
 <!-- End Meta Pixel Code -->
 </head>
 <body>
@@ -1430,17 +1450,18 @@ src="https://www.facebook.com/tr?id=849016838145150&ev=PageView&noscript=1"
 <footer><div class="wrap">
   <div class="foot-inner">
     <div class="foot-brand">Marmee's Blankets ✺</div>
-    <div class="foot-links"><a href="#ready">Shop Blankets</a><a href="#order">Custom Blankets</a><a href="#story">Story</a><a href="#returns">Returns & Refunds</a><a href="#contact">Contact</a></div>
+    <div class="foot-links"><a href="#ready">Shop Blankets</a><a href="#order">Custom Blankets</a><a href="#story">Story</a><a href="#returns">Returns & Refunds</a><a href="privacy.html">Privacy Policy</a><a href="#contact">Contact</a></div>
   </div>
   <div class="foot-bottom">© <span id="yr"></span> Marmee's Blankets · Handmade with love · Each blanket is one of a kind</div>
 </div></footer>
 
 <script>
 /* ATTRIBUTION — captures utm_source/medium/campaign/term/content (or referrer
-   if no UTM params) on first visit, and persists it in a cookie for 90 days.
-   First-touch model: the original channel that brought someone in is kept,
-   even if they return later via a direct visit or a different link. */
-(function captureAttribution(){
+   if no UTM params), and persists it in a cookie for 90 days. First-touch
+   model: the original channel that brought someone in is kept, even if they
+   return later via a direct visit or a different link. Only runs after
+   cookie consent is granted (see mbInitConsent near the end of the page). */
+function mbCaptureAttribution(){
   const COOKIE_NAME = 'mb_attr';
   function getCookie(name){
     const m = document.cookie.match(new RegExp('(?:^|; )'+name+'=([^;]*)'));
@@ -1472,7 +1493,7 @@ src="https://www.facebook.com/tr?id=849016838145150&ev=PageView&noscript=1"
   attr.landing_page = location.pathname;
   attr.first_seen = new Date().toISOString();
   setCookie(COOKIE_NAME, JSON.stringify(attr), 90);
-})();
+}
 function getAttribution(){
   const m = document.cookie.match(/(?:^|; )mb_attr=([^;]*)/);
   if(!m) return {};
@@ -1785,6 +1806,16 @@ function _getStripe(){ if(!_stripe && window.Stripe){ _stripe=Stripe(STRIPE_PK);
 async function openCheckout(order){
   const s=_getStripe();
   if(!s) throw new Error('Payment is still loading — try again in a moment.');
+
+  // Meta Pixel — this site goes straight from "buy" to checkout with no
+  // separate cart step, so AddToCart and InitiateCheckout both fire here,
+  // right as someone commits to buying a specific item.
+  if(typeof fbq === 'function'){
+    const pixelData = { value:(order.amount||0)/100, currency:'USD', content_name:order.label||'' };
+    fbq('track', 'AddToCart', pixelData);
+    fbq('track', 'InitiateCheckout', pixelData);
+  }
+
   const r=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(order)});
   const d=await r.json();
   if(!d.clientSecret) throw new Error(d.error||'Checkout failed');
@@ -1998,6 +2029,58 @@ document.querySelectorAll('#nl a').forEach(a=>a.addEventListener('click',()=>doc
     </div>
   </div>
 </div>
+
+<!-- COOKIE CONSENT -->
+<div class="ck-banner" id="ckBanner">
+  <div class="ck-inner">
+    <div class="ck-text">We use cookies to run the site and, if you allow it, to understand what's working and show relevant ads. See our <a href="privacy.html">Privacy Policy</a> for details.</div>
+    <div class="ck-btns">
+      <button type="button" class="ck-decline" id="ckDecline">Necessary Only</button>
+      <button type="button" class="ck-accept" id="ckAccept">Accept</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* COOKIE CONSENT — decides whether to load Meta Pixel + the attribution
+   cookie. Necessary cookies (like the exit-intent session flag) always run
+   regardless, since the site can't function without them. */
+(function mbInitConsent(){
+  const STORE_KEY = 'mb_cookie_consent'; // 'accepted' | 'declined'
+  let consent = null;
+  try { consent = localStorage.getItem(STORE_KEY); } catch(e){}
+
+  function enableTracking(){
+    mbCaptureAttribution();
+    mbLoadMetaPixel();
+  }
+
+  if(consent === 'accepted'){
+    enableTracking();
+    return;
+  }
+  if(consent === 'declined'){
+    return; // respect prior choice, don't show the banner again
+  }
+
+  // no choice made yet — show the banner
+  const banner = document.getElementById('ckBanner');
+  const acceptBtn = document.getElementById('ckAccept');
+  const declineBtn = document.getElementById('ckDecline');
+  if(!banner) return;
+  banner.classList.add('open');
+
+  acceptBtn.onclick = ()=>{
+    try { localStorage.setItem(STORE_KEY, 'accepted'); } catch(e){}
+    enableTracking();
+    banner.classList.remove('open');
+  };
+  declineBtn.onclick = ()=>{
+    try { localStorage.setItem(STORE_KEY, 'declined'); } catch(e){}
+    banner.classList.remove('open');
+  };
+})();
+</script>
 
 </body>
 </html>
