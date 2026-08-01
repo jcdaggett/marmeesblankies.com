@@ -1117,6 +1117,14 @@
     "@type": "Answer",
     "text": "Because they're simply better blankets. Every Marmee's blanket is thoughtfully designed using high-quality fabrics chosen not just for how they look, but for how they feel together. Combined with durable construction and careful hand-finishing, the result is exceptional softness, lasting durability, and a blanket that's made to be loved for years."
    }
+  },
+  {
+   "@type": "Question",
+   "name": "What's your return policy?",
+   "acceptedAnswer": {
+    "@type": "Answer",
+    "text": "We want you to love your blanket — if something's not right, reach out within 14 days of delivery and we'll help sort out a return or exchange. The item must be shipped back within 14 days of delivery, return shipping is the buyer's responsibility, and the buyer is responsible for any loss in value if the item isn't returned in its original condition."
+   }
   }
  ]
 }
@@ -1316,6 +1324,7 @@
       <details><summary>Can I order a custom blanket?</summary><p>Very soon. Made-to-order blankets — your fabrics, your size — are launching shortly. Use the "Notify Me at Launch" button above and you'll be first to know.</p></details>
       <details><summary>Where are the blankets made?</summary><p>Every blanket is handmade in Texas and ships anywhere in the US.</p></details>
       <details><summary>Why do Marmee's blankets cost more than store-bought blankets?</summary><p>Because they're simply better blankets. Every Marmee's blanket is thoughtfully designed using high-quality fabrics chosen not just for how they look, but for how they feel together. Combined with durable construction and careful hand-finishing, the result is exceptional softness, lasting durability, and a blanket that's made to be loved for years.</p></details>
+      <details id="returns"><summary>What's your return policy?</summary><p>We want you to love your blanket — if something's not right, reach out within 14 days of delivery and we'll help sort out a return or exchange. A few things to know: the item must be shipped back within 14 days of delivery; return shipping is the buyer's responsibility; and the buyer is responsible for any loss in value if the item isn't returned in its original condition. <a href="mailto:sales@marmeesblankets.com">Email us</a> to start a return.</p></details>
     </div>
   </div>
 </section>
@@ -1385,7 +1394,7 @@
 <footer><div class="wrap">
   <div class="foot-inner">
     <div class="foot-brand">Marmee's Blankets ✺</div>
-    <div class="foot-links"><a href="#ready">Shop Blankets</a><a href="#order">Custom Blankets</a><a href="#story">Story</a><a href="#contact">Contact</a></div>
+    <div class="foot-links"><a href="#ready">Shop Blankets</a><a href="#order">Custom Blankets</a><a href="#story">Story</a><a href="#returns">Returns & Refunds</a><a href="#contact">Contact</a></div>
   </div>
   <div class="foot-bottom">© <span id="yr"></span> Marmee's Blankets · Handmade with love · Each blanket is one of a kind</div>
 </div></footer>
@@ -1737,6 +1746,15 @@ document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 function revealInView(){document.querySelectorAll('.reveal:not(.in)').forEach(el=>{const r=el.getBoundingClientRect();if(r.top<window.innerHeight&&r.bottom>0)el.classList.add('in');});}
 revealInView();
 window.addEventListener('load',revealInView);
+/* Auto-expand the Returns & Refunds FAQ item when linked to directly (footer link uses #returns) */
+function openReturnsIfLinked(){
+  if(location.hash==='#returns'){
+    const d=document.getElementById('returns');
+    if(d) d.open=true;
+  }
+}
+openReturnsIfLinked();
+window.addEventListener('hashchange',openReturnsIfLinked);
 setTimeout(()=>document.querySelectorAll('.reveal:not(.in)').forEach(el=>el.classList.add('in')),1200);
 const cio=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){const i=Array.from(g.children).indexOf(x.target);setTimeout(()=>x.target.classList.add('in'),(i%3)*90);cio.unobserve(x.target)}})},{threshold:.1});
 setTimeout(()=>document.querySelectorAll('.card').forEach(c=>cio.observe(c)),100);
