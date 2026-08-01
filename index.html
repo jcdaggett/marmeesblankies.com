@@ -1957,6 +1957,8 @@ document.querySelectorAll('#nl a').forEach(a=>a.addEventListener('click',()=>doc
 
         // Meta Pixel — fire Purchase once per order (guarded so a page
         // refresh with the same session_id in the URL doesn't double-count).
+        // eventID matches the server-side CAPI event_id (Worker uses the
+        // Stripe session id too) so Meta dedupes the browser + server events.
         var trackedKey = 'mb_purchase_tracked_' + sid;
         var already = false;
         try { already = localStorage.getItem(trackedKey) === '1'; } catch(e){}
@@ -1965,7 +1967,7 @@ document.querySelectorAll('#nl a').forEach(a=>a.addEventListener('click',()=>doc
             value: d.total/100,
             currency: (d.currency||'USD').toUpperCase(),
             content_name: d.item || ''
-          });
+          }, { eventID: sid });
           try { localStorage.setItem(trackedKey, '1'); } catch(e){}
         }
       })
