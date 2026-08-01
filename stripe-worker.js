@@ -13,6 +13,55 @@
  * See STRIPE-SETUP.txt for step-by-step deployment.
  */
 
+/**
+ * Server-side Meta Conversions API — sends the Purchase event directly from
+ * Cloudflare to Meta, using event_id = the Stripe session id so Meta can
+ * dedupe against the browser-side pixel event (see index.html, which passes
+ * the same session id as fbq's eventID). This is more reliable than the
+ * browser pixel alone since ad blockers / Safari tracking prevention can't
+ * stop a server-to-server call. Never throws — a CAPI failure must not break
+ * the order confirmation page.
+ */
+async function sendMetaPurchaseEvent(env, s, ref) {
+  try {
+    const token = env.META_CAPI_TOKEN;
+    if (!token) return;
+    const pixelId = env.META_PIXEL_ID || "849016838145150";
+
+    const email = ((s.customer_details && s.customer_details.email) || "").trim().toLowerCase();
+    const user_data = {};
+    if (email) {
+      const hashBuf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(email));
+      user_data.em = [Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, "0")).join("")];
+    }
+
+    const body = {
+      data: [{
+        event_name: "Purchase",
+        event_time: Math.floor(Date.now() / 1000),
+        event_id: s.id, // matches client-side fbq eventID for deduplication
+        action_source: "website",
+        event_source_url: "https://marmeesblankets.com/?paid=1",
+        user_data,
+        custom_data: {
+          currency: (s.currency || "usd").toUpperCase(),
+          value: (s.amount_total || 0) / 100,
+          content_name: (s.line_items && s.line_items.data && s.line_items.data[0] && s.line_items.data[0].description) || "",
+          order_id: ref,
+        },
+      }],
+    };
+
+    await fetch(`https://graph.facebook.com/v19.0/${pixelId}/events?access_token=${encodeURIComponent(token)}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch (e) {
+    // swallow — CAPI is best-effort, never blocks the confirmation response
+  }
+}
+
 export default {
   async fetch(request, env) {
     const cors = {
@@ -41,6 +90,10 @@ export default {
       const spec = [md.front, md.back, md.size, md.edge]
         .filter(v => v && v !== "\u2014").join(" \u00b7 ");
       const ref = (s.payment_intent || s.id || "").toString().slice(-8).toUpperCase();
+
+      if (s.payment_status === "paid") {
+        await sendMetaPurchaseEvent(env, s, ref);
+      }
 
       return json({
         paid: s.payment_status === "paid",
