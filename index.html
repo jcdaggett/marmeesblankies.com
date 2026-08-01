@@ -1419,6 +1419,49 @@
 </div></footer>
 
 <script>
+/* ATTRIBUTION — captures utm_source/medium/campaign/term/content (or referrer
+   if no UTM params) on first visit, and persists it in a cookie for 90 days.
+   First-touch model: the original channel that brought someone in is kept,
+   even if they return later via a direct visit or a different link. */
+(function captureAttribution(){
+  const COOKIE_NAME = 'mb_attr';
+  function getCookie(name){
+    const m = document.cookie.match(new RegExp('(?:^|; )'+name+'=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+  function setCookie(name, value, days){
+    const d = new Date(); d.setTime(d.getTime() + days*24*60*60*1000);
+    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${d.toUTCString()}; path=/; SameSite=Lax`;
+  }
+  if(getCookie(COOKIE_NAME)) return; // first-touch already captured
+
+  const params = new URLSearchParams(location.search);
+  const utmKeys = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content'];
+  const attr = {};
+  let hasUtm = false;
+  utmKeys.forEach(k=>{ const v=params.get(k); if(v){ attr[k]=v; hasUtm=true; } });
+
+  if(!hasUtm){
+    // no UTM params — fall back to referrer, or 'direct' if there is none
+    if(document.referrer && !document.referrer.includes(location.hostname)){
+      try{ attr.utm_source = new URL(document.referrer).hostname; }
+      catch(e){ attr.utm_source = 'referral'; }
+      attr.utm_medium = 'referral';
+    } else {
+      attr.utm_source = 'direct';
+      attr.utm_medium = 'none';
+    }
+  }
+  attr.landing_page = location.pathname;
+  attr.first_seen = new Date().toISOString();
+  setCookie(COOKIE_NAME, JSON.stringify(attr), 90);
+})();
+function getAttribution(){
+  const m = document.cookie.match(/(?:^|; )mb_attr=([^;]*)/);
+  if(!m) return {};
+  try { return JSON.parse(decodeURIComponent(m[1])); } catch(e){ return {}; }
+}
+
 document.getElementById('yr').textContent=new Date().getFullYear();
 /* Prices are PLACEHOLDERS from market research — adjust in the pricing sheet. */
 const ready=[
@@ -1640,7 +1683,7 @@ async function buyReadyMade(p){
   const amount=parseInt(p.price.replace(/[^0-9]/g,''),10)*100;
   const buy=document.getElementById('lbBuy');buy.textContent='Connecting…';buy.disabled=true;
   try{
-    await openCheckout({label:'Ready-Made: '+p.name,front:p.name,back:'—',size:p.tag,edge:'—',img:p.imgs[0],amount});
+    await openCheckout({label:'Ready-Made: '+p.name,front:p.name,back:'—',size:p.tag,edge:'—',img:p.imgs[0],amount,...getAttribution()});
     closeLightbox();
   }catch(err){alert('Sorry, checkout had a problem: '+err.message);}
   buy.textContent='Buy This One — '+p.price;buy.disabled=false;
@@ -1747,7 +1790,8 @@ document.getElementById('cfgBuy').onclick = async ()=>{
   const order = {
     front: state.front.name, back: state.back.name, size: state.size.name+' '+state.size.dim,
     edge: state.edge.name, amount: total()*100,
-    label: `Custom ${state.size.name} blanket — ${state.front.name} / ${state.back.name}`
+    label: `Custom ${state.size.name} blanket — ${state.front.name} / ${state.back.name}`,
+    ...getAttribution()
   };
   const btn = document.getElementById('cfgBuy'); btn.textContent='Connecting…'; btn.disabled=true;
   try{
@@ -1821,7 +1865,7 @@ document.querySelectorAll('#nl a').forEach(a=>a.addEventListener('click',()=>doc
       const r = await fetch(SUBSCRIBERS_WORKER_URL, {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ email, source:'exit_intent' })
+        body: JSON.stringify({ email, source:'exit_intent', ...getAttribution() })
       });
       const d = await r.json();
       if(!r.ok) throw new Error(d.error || 'Something went wrong');
