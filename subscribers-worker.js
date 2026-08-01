@@ -37,6 +37,12 @@ export default {
       await env.SUBSCRIBERS.put(key, JSON.stringify({
         email,
         source: (body.source || "exit_intent").toString().slice(0, 40),
+        utm_source: (body.utm_source || "").toString().slice(0, 100),
+        utm_medium: (body.utm_medium || "").toString().slice(0, 100),
+        utm_campaign: (body.utm_campaign || "").toString().slice(0, 100),
+        utm_term: (body.utm_term || "").toString().slice(0, 100),
+        utm_content: (body.utm_content || "").toString().slice(0, 100),
+        landing_page: (body.landing_page || "").toString().slice(0, 200),
         subscribedAt: new Date().toISOString(),
       }));
     }
