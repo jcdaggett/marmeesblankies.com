@@ -39,15 +39,37 @@
   .success{display:none;text-align:center;background:#fff;border:1px solid var(--line);border-radius:16px;padding:3rem 2.2rem;box-shadow:0 14px 34px var(--shadow)}
   .success h2{font-family:'Fraunces',serif;font-size:1.6rem;margin-bottom:.8rem}
   .success p{color:var(--ink-soft)}
+  .photo-box{border:2px dashed var(--rose-deep);border-radius:14px;background:var(--cream);padding:1.8rem 1.4rem;text-align:center;cursor:pointer;transition:background .2s,border-color .2s}
+  .photo-box:hover{background:#fdf3ee;border-color:var(--rose)}
+  .photo-box .ic{font-size:2rem;display:block;margin-bottom:.5rem}
+  .photo-box .headline{font-weight:700;font-size:1.05rem;color:var(--ink);margin-bottom:.3rem}
+  .photo-box .sub{font-size:.88rem;color:var(--ink-soft)}
+  .photo-box input[type=file]{display:none}
+  .section-label{font-weight:700;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--rose-deep);margin-bottom:.6rem}
+  .divider-row{display:flex;align-items:center;gap:.8rem;margin:1.8rem 0}
+  .divider-row::before,.divider-row::after{content:"";flex:1;height:1px;background:var(--line)}
+  .divider-row span{font-size:.82rem;color:var(--ink-soft);font-weight:600}
 </style>
 </head>
 <body>
 <div class="wrap">
   <img src="img/marmees-logo.png" alt="Marmee's Blankets" class="brand-logo">
-  <h1>How's your blanket?</h1>
-  <p class="lede">We'd love to hear about it — your review helps other families find us.</p>
+  <h1>Share a photo, get featured</h1>
+  <p class="lede">Upload a photo of your Marmee's blanket to be featured on the site — a few words about it are welcome too.</p>
 
   <form id="revForm">
+    <div class="section-label">Your photo</div>
+    <label class="photo-box" for="photo">
+      <span class="ic">📷</span>
+      <span class="headline">Add photos <span style="font-weight:400">(up to 3)</span></span>
+      <span class="sub">Tap or click to upload — JPEG, PNG, or WEBP</span>
+      <input type="file" id="photo" accept="image/jpeg,image/png,image/webp" multiple>
+    </label>
+    <div id="photoPreviews" style="display:flex;gap:.6rem;margin-top:.8rem;flex-wrap:wrap"></div>
+    <div id="photoErr" class="msg err" style="display:none;margin-top:.5rem;font-size:.9rem"></div>
+
+    <div class="divider-row"><span>Your review</span></div>
+
     <label for="name">Your name</label>
     <input type="text" id="name" maxlength="60" required placeholder="e.g. Sarah">
 
@@ -60,18 +82,13 @@
       <button type="button" data-v="5">★</button>
     </div>
 
-    <label for="review">Your review</label>
+    <label for="review">A few words</label>
     <textarea id="review" maxlength="600" required placeholder="Tell us what you think..."></textarea>
-
-    <label for="photo">Add photos <span style="font-weight:400;color:var(--ink-soft)">(optional, up to 3)</span></label>
-    <input type="file" id="photo" accept="image/jpeg,image/png,image/webp" multiple>
-    <div id="photoPreviews" style="display:flex;gap:.6rem;margin-top:.8rem;flex-wrap:wrap"></div>
-    <div id="photoErr" class="msg err" style="display:none;margin-top:.5rem;font-size:.9rem"></div>
 
     <!-- honeypot field, hidden from real users -->
     <input type="text" id="website" name="website" class="hp" tabindex="-1" autocomplete="off">
 
-    <button type="submit" class="submit-btn" id="submitBtn">Submit Review</button>
+    <button type="submit" class="submit-btn" id="submitBtn">Submit</button>
     <div id="msg"></div>
   </form>
 
