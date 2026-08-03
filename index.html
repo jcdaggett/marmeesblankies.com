@@ -202,7 +202,12 @@
   .lb-thumb:hover{border-color:var(--rose)}
   .imgcount{position:absolute;top:10px;right:10px;background:rgba(59,53,46,.82);color:var(--cream);font-size:.7rem;font-weight:600;letter-spacing:.02em;padding:.28rem .55rem;border-radius:20px;z-index:2}
   .lb-close{position:absolute;top:16px;right:20px;z-index:2;background:rgba(250,246,239,.92);border:none;width:40px;height:40px;border-radius:50%;font-size:1.3rem;cursor:pointer;color:var(--ink);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.2)}
-  @media(max-width:760px){.lb-card{grid-template-columns:1fr;max-height:94vh;overflow-y:auto}.lb-imgwrap{aspect-ratio:4/3.6}}
+  @media(max-width:760px){
+    .lb-card{grid-template-columns:1fr;max-height:94vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+    .lb-imgwrap{aspect-ratio:4/3.6}
+    .lb-thumbs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px;scroll-snap-type:x proximity}
+    .lb-thumb{flex:0 0 auto;scroll-snap-align:start}
+  }
   .tag{position:absolute;top:14px;left:14px;background:rgba(250,246,239,.94);font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:.35rem .75rem;border-radius:30px}
   .card-body{padding:1.2rem 1.3rem 1.5rem}
   .card-body h3{font-size:1.3rem;margin-bottom:.35rem}
