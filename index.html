@@ -273,15 +273,14 @@
   .rev.in{opacity:1;transform:none}
   .rev-img{aspect-ratio:1;overflow:hidden;background:var(--cream-deep);position:relative}
   .rev-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
-  .rev-arrow{position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;
-             background:rgba(0,0,0,.45);color:#fff;border:none;display:flex;align-items:center;justify-content:center;
-             cursor:pointer;font-size:1.1rem;line-height:1;transition:background .15s;z-index:2}
-  .rev-arrow:hover{background:rgba(0,0,0,.7)}
-  .rev-arrow.prev{left:8px}
-  .rev-arrow.next{right:8px}
-  .rev-dots{position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:5px;z-index:2}
-  .rev-dots span{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55)}
-  .rev-dots span.active{background:#fff}
+  .rev-scrim{position:absolute;left:0;right:0;bottom:0;height:44%;
+             background:linear-gradient(to top, rgba(0,0,0,.55), rgba(0,0,0,0));
+             display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;pointer-events:none}
+  .rev-filmstrip{display:flex;gap:6px;pointer-events:auto}
+  .rev-filmstrip img{width:38px;height:38px;object-fit:cover;border-radius:6px;cursor:pointer;
+                      border:2px solid rgba(255,255,255,.55);transition:border-color .15s,transform .15s}
+  .rev-filmstrip img:hover{transform:translateY(-2px)}
+  .rev-filmstrip img.active{border-color:#fff}
   .rev:hover .rev-img img{transform:scale(1.04)}
   .rev-body{padding:1.2rem 1.3rem 1.4rem}
   .rev-verified{display:inline-flex;align-items:center;gap:.3rem;font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--sage);margin-bottom:.3rem}
@@ -1626,35 +1625,25 @@ const REVIEWS_WORKER_URL = "https://marmees-reviews.jesse-daggett.workers.dev";
           mainWrap.appendChild(mainImg);
 
           if(imgs.length > 1){
-            var idx = 0;
-            var dots = imgs.map(function(){ return document.createElement('span'); });
-            var dotsWrap = document.createElement('div');
-            dotsWrap.className = 'rev-dots';
-            dots.forEach(function(dot, i){ if(i===0) dot.className='active'; dotsWrap.appendChild(dot); });
-
-            function show(i){
-              idx = (i + imgs.length) % imgs.length;
-              mainImg.src = imgs[idx];
-              dots.forEach(function(dot, di){ dot.className = di===idx ? 'active' : ''; });
-            }
-
-            var prevBtn = document.createElement('button');
-            prevBtn.className = 'rev-arrow prev';
-            prevBtn.type = 'button';
-            prevBtn.setAttribute('aria-label','Previous photo');
-            prevBtn.textContent = '\u2039';
-            prevBtn.onclick = function(e){ e.stopPropagation(); show(idx - 1); };
-
-            var nextBtn = document.createElement('button');
-            nextBtn.className = 'rev-arrow next';
-            nextBtn.type = 'button';
-            nextBtn.setAttribute('aria-label','Next photo');
-            nextBtn.textContent = '\u203a';
-            nextBtn.onclick = function(e){ e.stopPropagation(); show(idx + 1); };
-
-            mainWrap.appendChild(prevBtn);
-            mainWrap.appendChild(nextBtn);
-            mainWrap.appendChild(dotsWrap);
+            var scrim = document.createElement('div');
+            scrim.className = 'rev-scrim';
+            var strip = document.createElement('div');
+            strip.className = 'rev-filmstrip';
+            var thumbs = imgs.map(function(url, i){
+              var t = document.createElement('img');
+              t.src = url;
+              t.alt = 'Photo ' + (i+1) + ' of ' + imgs.length;
+              t.loading = 'lazy';
+              if(i === 0) t.className = 'active';
+              t.onclick = function(){
+                mainImg.src = url;
+                thumbs.forEach(function(th){ th.className = th === t ? 'active' : ''; });
+              };
+              strip.appendChild(t);
+              return t;
+            });
+            scrim.appendChild(strip);
+            mainWrap.appendChild(scrim);
           }
 
           d2.appendChild(mainWrap);
