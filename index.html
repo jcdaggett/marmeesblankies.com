@@ -1522,6 +1522,7 @@ function getAttribution(){
 document.getElementById('yr').textContent=new Date().getFullYear();
 /* Prices are PLACEHOLDERS from market research — adjust in the pricing sheet. */
 const ready=[
+ {sku:'MB-CB-001',imgs:["MB-CB-001-pastel-galaxy-01.webp","MB-CB-001-pastel-galaxy-02-back.webp"],tag:'Cuddle',name:'Pastel Galaxy',d:'Lavender, pink, and blue galaxy swirl with stars, backed with light blue dot minky.',full:'Soft pastel galaxy colors and cozy minky texture make this baby blanket a lovely addition to a nursery. The plush front swirls lavender, pink, and pale blue together with a subtle scattering of stars for a dreamy, celestial look. The reverse is a light blue raised dot minky, soft and textured against baby\'s skin. Cuddle size. Handmade, one of a kind.',price:'$69',size:'31" x 42"',avail:'1 available'},
 ];const g=document.getElementById('readyGrid');
 ready.forEach((p,i)=>{const a=document.createElement('div');a.className='card';a.tabIndex=0;a.dataset.cat=p.tag;
  const count = p.imgs.length>1 ? `<span class="imgcount">⊞ ${p.imgs.length} photos</span>` : '';
