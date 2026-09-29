@@ -1543,8 +1543,8 @@ const ready=[
 ];const g=document.getElementById('readyGrid');
 ready.forEach((p,i)=>{const a=document.createElement('div');a.className='card';a.tabIndex=0;a.dataset.cat=p.tag;
  const count = p.imgs.length>1 ? `<span class="imgcount">⊞ ${p.imgs.length} photos</span>` : '';
- const thumbs = p.imgs.length>1 ? `<div class="thumbstrip">${p.imgs.map(im=>`<img src="img/${im}" alt="" loading="lazy" onerror="this.style.display='none'">`).join('')}</div>` : '';
- a.innerHTML=`<div class="card-img"><span class="tag">${p.tag}</span>${count}<span class="ph">${p.name}<br>${p.sku||''}</span><img src="img/${p.imgs[0]}" alt="${p.name}" loading="lazy" onerror="this.classList.add('broken')">${thumbs}</div>
+ const thumbs = p.imgs.length>1 ? `<div class="thumbstrip">${p.imgs.map(im=>`<img src="img/${im}" alt="" loading="lazy" onerror="this.style.display='none'" onmouseenter="this.closest('.card-img').querySelector('img.main-img').src=this.src" onmouseleave="this.closest('.card-img').querySelector('img.main-img').src='img/${p.imgs[0]}'">`).join('')}</div>` : '';
+ a.innerHTML=`<div class="card-img"><span class="tag">${p.tag}</span>${count}<span class="ph">${p.name}<br>${p.sku||''}</span><img class="main-img" src="img/${p.imgs[0]}" alt="${p.name}" loading="lazy" onerror="this.classList.add('broken')">${thumbs}</div>
  <div class="card-body"><h3>${p.name}</h3><div class="card-size">${p.size||''}</div><div class="d">${p.d}</div>
  <div class="card-meta"><span class="price">${p.price}</span></div></div>`;
  a.onclick=()=>openLightbox(i);
