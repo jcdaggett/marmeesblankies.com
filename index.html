@@ -111,10 +111,14 @@
   /* shared product grid */
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px 28px}
   .card{background:var(--cream);border-radius:14px;overflow:hidden;border:1px solid var(--line);transition:transform .35s,box-shadow .35s;cursor:pointer;opacity:0;transform:translateY(26px)}
-  .cat-filters{display:flex;flex-wrap:wrap;gap:.5rem;margin:1.4rem 0 2rem}
-  .cat-btn{font-family:'Karla',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.02em;color:var(--ink-soft);background:var(--cream-deep);border:1px solid var(--line);border-radius:40px;padding:.4rem .95rem;cursor:pointer;transition:background .2s,color .2s,border-color .2s,transform .2s}
-  .cat-btn:hover{transform:translateY(-1px);border-color:var(--ink-soft)}
-  .cat-btn.active{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+  .cat-section{margin:1.6rem 0 2rem}
+  .cat-label{font-family:'Karla',sans-serif;font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:.6rem}
+  .cat-filters{display:flex;flex-wrap:wrap;gap:.6rem}
+  .cat-btn{font-family:'Karla',sans-serif;font-size:.86rem;font-weight:700;letter-spacing:.02em;color:var(--ink);background:var(--cream);border:2px solid var(--line);border-radius:40px;padding:.55rem 1.15rem;cursor:pointer;transition:background .2s,color .2s,border-color .2s,transform .2s,box-shadow .2s;box-shadow:0 1px 3px rgba(59,53,46,.06)}
+  .cat-btn .cnt{opacity:.6;font-weight:600;margin-left:.3em}
+  .cat-btn:hover{transform:translateY(-1px);border-color:var(--rose-deep,#a96a6a);box-shadow:0 3px 8px rgba(59,53,46,.12)}
+  .cat-btn.active{background:var(--rose-deep,#a96a6a);color:var(--cream);border-color:var(--rose-deep,#a96a6a);box-shadow:0 3px 10px rgba(169,106,106,.35)}
+  .cat-btn.active .cnt{opacity:.85}
   .card-size{font-size:.85rem;color:var(--ink-soft);font-weight:600;margin:-.3rem 0 .5rem}
   .card.hide{display:none}
   .card.in{opacity:1;transform:none}
@@ -1270,7 +1274,7 @@ function mbLoadMetaPixel(){
       <div class="sec-eyebrow">Ready to Ship</div>
       <h2>Shop the Blankets</h2>
     </div>
-    <div class="cat-filters" id="catFilters"></div>
+    <div class="cat-section"><div class="cat-label">Shop by Category</div><div class="cat-filters" id="catFilters"></div></div>
     <div class="grid" id="readyGrid"></div>
   </div>
 </section>
@@ -1566,10 +1570,12 @@ const cats = ['All'];
 ready.forEach(p=>{ if(!cats.includes(p.tag)) cats.push(p.tag); });
 const catBar = document.getElementById('catFilters');
 cats.forEach(cat=>{
+  const n = cat==='All' ? ready.length : ready.filter(p=>p.tag===cat).length;
   const btn = document.createElement('button');
   btn.className = 'cat-btn' + (cat==='All' ? ' active' : '');
   btn.type = 'button';
-  btn.textContent = cat;
+  btn.dataset.cat = cat;
+  btn.innerHTML = `${cat}<span class="cnt">(${n})</span>`;
   btn.onclick = ()=>{
     catBar.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
@@ -1585,7 +1591,7 @@ cats.forEach(cat=>{
    straight to just the Cuddle blankets instead of the full unfiltered grid. */
 function mbShopByCategory(el){
   const cat = el.dataset.cat;
-  const btn = Array.from(catBar.querySelectorAll('.cat-btn')).find(b=>b.textContent===cat);
+  const btn = Array.from(catBar.querySelectorAll('.cat-btn')).find(b=>b.dataset.cat===cat);
   if(btn) btn.click();
   document.getElementById('ready').scrollIntoView({behavior:'smooth', block:'start'});
 }
