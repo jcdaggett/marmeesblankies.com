@@ -1793,7 +1793,7 @@ lbWrap.addEventListener('touchmove',(e)=>{
 document.getElementById('lbClose').onclick=closeLightbox;
 document.querySelectorAll('.lb-care').forEach(d=>{
   d.addEventListener('toggle',()=>{
-    if(d.open) setTimeout(()=>d.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+    if(d.open) setTimeout(()=>d.scrollIntoView({behavior:'smooth',block:'start'}),50);
   });
 });
 document.getElementById('lightbox').onclick=e=>{if(e.target.id==='lightbox')closeLightbox();};
