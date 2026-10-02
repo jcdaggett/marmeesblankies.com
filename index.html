@@ -1791,6 +1791,11 @@ lbWrap.addEventListener('touchmove',(e)=>{
   panFromTouch(e.touches[0]);
 },{passive:false});
 document.getElementById('lbClose').onclick=closeLightbox;
+document.querySelectorAll('.lb-care').forEach(d=>{
+  d.addEventListener('toggle',()=>{
+    if(d.open) setTimeout(()=>d.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+  });
+});
 document.getElementById('lightbox').onclick=e=>{if(e.target.id==='lightbox')closeLightbox();};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLightbox();});
 
