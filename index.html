@@ -231,7 +231,9 @@
   @media(max-width:480px){.thumbstrip img{width:38px;height:38px;border-radius:6px}}
   .lb-close{position:absolute;top:16px;right:20px;z-index:2;background:rgba(250,246,239,.92);border:none;width:40px;height:40px;border-radius:50%;font-size:1.3rem;cursor:pointer;color:var(--ink);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.2)}
   @media(max-width:760px){
-    .lb-card{grid-template-columns:1fr;max-height:94vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+    .lb-card{display:flex;flex-direction:column;max-height:94vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+    .lb-imgwrap{flex:0 0 auto}
+    .lb-info{flex:0 0 auto}
     .lb-imgwrap{aspect-ratio:4/3.6}
     .lb-thumbs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px;scroll-snap-type:x proximity}
     .lb-thumb{flex:0 0 auto;scroll-snap-align:start}
