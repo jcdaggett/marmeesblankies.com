@@ -229,9 +229,10 @@
   .lb-thumb.sel{border-color:var(--rose-deep)}
   .lb-thumb:hover{border-color:var(--rose)}
   .imgcount{position:absolute;top:10px;right:10px;background:rgba(59,53,46,.82);color:var(--cream);font-size:.7rem;font-weight:600;letter-spacing:.02em;padding:.28rem .55rem;border-radius:20px;z-index:2}
-  .thumbstrip{position:absolute;bottom:10px;left:10px;right:10px;display:flex;gap:6px;z-index:2;overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .thumbstrip img{flex:0 0 auto;width:52px;height:52px;object-fit:cover;border-radius:8px;border:2px solid rgba(255,255,255,.9);box-shadow:0 1px 4px rgba(0,0,0,.35)}
-  @media(max-width:480px){.thumbstrip img{width:38px;height:38px;border-radius:6px}}
+  .thumbstrip{display:flex;gap:6px;padding:.7rem 1.3rem 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .thumbstrip img{flex:0 0 auto;width:44px;height:44px;object-fit:cover;border-radius:7px;border:2px solid var(--line);cursor:pointer;transition:border-color .2s}
+  .thumbstrip img:hover{border-color:var(--rose-deep)}
+  @media(max-width:480px){.thumbstrip img{width:36px;height:36px;border-radius:6px}}
   .lb-close{position:absolute;top:16px;right:20px;z-index:2;background:rgba(250,246,239,.92);border:none;width:40px;height:40px;border-radius:50%;font-size:1.3rem;cursor:pointer;color:var(--ink);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.2)}
   @media(max-width:760px){
     .lb-card{display:flex;flex-direction:column;max-height:94vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -1617,8 +1618,9 @@ const ready=[
 ];const g=document.getElementById('readyGrid');
 ready.forEach((p,i)=>{const a=document.createElement('div');a.className='card';a.tabIndex=0;a.dataset.cat=p.tag;
  const count = p.imgs.length>1 ? `<span class="imgcount">⊞ ${p.imgs.length} photos</span>` : '';
- const thumbs = p.imgs.length>1 ? `<div class="thumbstrip">${p.imgs.map(im=>`<img src="img/${im}" alt="" loading="lazy" onerror="this.style.display='none'" onmouseenter="this.closest('.card-img').querySelector('img.main-img').src=this.src" onmouseleave="this.closest('.card-img').querySelector('img.main-img').src='img/${p.imgs[0]}'" onclick="event.stopPropagation();openLightbox(${i},'${im}')">`).join('')}</div>` : '';
- a.innerHTML=`<div class="card-img"><span class="tag">${p.tag}</span>${count}<span class="ph">${p.name}<br>${p.sku||''}</span><img class="main-img" src="img/${p.imgs[0]}" alt="${p.name}" loading="lazy" onerror="this.classList.add('broken')">${thumbs}</div>
+ const thumbs = p.imgs.length>1 ? `<div class="thumbstrip">${p.imgs.map(im=>`<img src="img/${im}" alt="" loading="lazy" onerror="this.style.display='none'" onmouseenter="this.closest('.card').querySelector('img.main-img').src=this.src" onmouseleave="this.closest('.card').querySelector('img.main-img').src='img/${p.imgs[0]}'" onclick="event.stopPropagation();openLightbox(${i},'${im}')">`).join('')}</div>` : '';
+ a.innerHTML=`<div class="card-img"><span class="tag">${p.tag}</span>${count}<span class="ph">${p.name}<br>${p.sku||''}</span><img class="main-img" src="img/${p.imgs[0]}" alt="${p.name}" loading="lazy" onerror="this.classList.add('broken')"></div>
+ ${thumbs}
  <div class="card-body"><h3>${p.name}</h3><div class="card-size">${p.size||''}</div><div class="d">${p.d}</div>
  <div class="card-meta"><span class="price">${p.price}</span></div></div>`;
  a.onclick=()=>openLightbox(i);
