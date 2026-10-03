@@ -132,7 +132,7 @@
   .card:hover .card-img::after{opacity:1}
 
   /* LIGHTBOX */
-  .lb{position:fixed;inset:0;z-index:1000;background:rgba(40,34,28,.92);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px}
+  .lb{position:fixed;inset:0;z-index:1000;background:rgba(40,34,28,.92);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:24px}
   .lb.open{display:flex}
   .lb-card{background:var(--cream);border-radius:16px;max-width:920px;width:100%;max-height:92vh;overflow:hidden;display:grid;grid-template-columns:1.3fr .9fr;box-shadow:0 30px 80px rgba(0,0,0,.5);animation:lbpop .3s ease}
   @keyframes lbpop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
@@ -1768,9 +1768,30 @@ function openLightbox(i,startImg){
   buy.textContent='Buy This One — '+p.price;
   buy.onclick=()=>buyReadyMade(p);
   document.getElementById('lightbox').classList.add('open');
+  lockBodyScroll();
+}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('open');unlockBodyScroll();}
+/* iOS Safari ignores body{overflow:hidden} for background scroll/rubber-banding
+   while a fixed-position modal is open, which can let the page behind it shift
+   and bleed through. Pinning the body in place with position:fixed and restoring
+   the exact scroll offset on close is the standard fix. */
+let _scrollLockY = 0;
+function lockBodyScroll(){
+  _scrollLockY = window.scrollY;
+  document.body.style.position='fixed';
+  document.body.style.top=(-_scrollLockY)+'px';
+  document.body.style.left='0';
+  document.body.style.right='0';
   document.body.style.overflow='hidden';
 }
-function closeLightbox(){document.getElementById('lightbox').classList.remove('open');document.body.style.overflow='';}
+function unlockBodyScroll(){
+  document.body.style.position='';
+  document.body.style.top='';
+  document.body.style.left='';
+  document.body.style.right='';
+  document.body.style.overflow='';
+  window.scrollTo(0,_scrollLockY);
+}
 /* Multi-level zoom: click cycles 1x -> 2.2x -> 3.6x -> back to 1x.
    While zoomed, the image pans to follow the cursor so any part of the
    fabric/print can be inspected up close, not just the center. */
