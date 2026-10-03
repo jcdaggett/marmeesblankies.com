@@ -248,6 +248,7 @@
   .card-body h3{font-size:1.3rem;margin-bottom:.35rem}
   .card-body .d{font-size:.96rem;color:var(--ink-soft);margin-bottom:.8rem;min-height:2.7em}
   .card-meta{display:flex;justify-content:space-between;align-items:center}
+  .card-cta{font-family:'Karla',sans-serif;font-size:.78rem;font-weight:700;color:var(--rose-deep);letter-spacing:.02em}
   .price{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:600;color:var(--rose-deep)}
 
   /* MADE TO ORDER */
@@ -1622,7 +1623,7 @@ ready.forEach((p,i)=>{const a=document.createElement('div');a.className='card';a
  a.innerHTML=`<div class="card-img"><span class="tag">${p.tag}</span>${count}<span class="ph">${p.name}<br>${p.sku||''}</span><img class="main-img" src="img/${p.imgs[0]}" alt="${p.name}" loading="lazy" onerror="this.classList.add('broken')"></div>
  ${thumbs}
  <div class="card-body"><h3>${p.name}</h3><div class="card-size">${p.size||''}</div><div class="d">${p.d}</div>
- <div class="card-meta"><span class="price">${p.price}</span></div></div>`;
+ <div class="card-meta"><span class="price">${p.price}</span><span class="card-cta">View &amp; Buy →</span></div></div>`;
  a.onclick=()=>openLightbox(i);
  a.onkeydown=e=>{if(e.key==='Enter')openLightbox(i);};
  g.appendChild(a);});
