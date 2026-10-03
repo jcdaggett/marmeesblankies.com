@@ -1609,7 +1609,7 @@ const ready=[
 ];const g=document.getElementById('readyGrid');
 ready.forEach((p,i)=>{const a=document.createElement('div');a.className='card';a.tabIndex=0;a.dataset.cat=p.tag;
  const count = p.imgs.length>1 ? `<span class="imgcount">⊞ ${p.imgs.length} photos</span>` : '';
- const thumbs = p.imgs.length>1 ? `<div class="thumbstrip">${p.imgs.map(im=>`<img src="img/${im}" alt="" loading="lazy" onerror="this.style.display='none'" onmouseenter="this.closest('.card-img').querySelector('img.main-img').src=this.src" onmouseleave="this.closest('.card-img').querySelector('img.main-img').src='img/${p.imgs[0]}'">`).join('')}</div>` : '';
+ const thumbs = p.imgs.length>1 ? `<div class="thumbstrip">${p.imgs.map(im=>`<img src="img/${im}" alt="" loading="lazy" onerror="this.style.display='none'" onmouseenter="this.closest('.card-img').querySelector('img.main-img').src=this.src" onmouseleave="this.closest('.card-img').querySelector('img.main-img').src='img/${p.imgs[0]}'" onclick="event.stopPropagation();openLightbox(${i},'${im}')">`).join('')}</div>` : '';
  a.innerHTML=`<div class="card-img"><span class="tag">${p.tag}</span>${count}<span class="ph">${p.name}<br>${p.sku||''}</span><img class="main-img" src="img/${p.imgs[0]}" alt="${p.name}" loading="lazy" onerror="this.classList.add('broken')">${thumbs}</div>
  <div class="card-body"><h3>${p.name}</h3><div class="card-size">${p.size||''}</div><div class="d">${p.d}</div>
  <div class="card-meta"><span class="price">${p.price}</span></div></div>`;
@@ -1742,9 +1742,9 @@ function setLbImage(src,alt){
   img.style.transform='scale(1)'; img.style.transformOrigin='center';
   zoomStep=0;
 }
-function openLightbox(i){
+function openLightbox(i,startImg){
   const p=ready[i];
-  setLbImage(p.imgs[0],p.name);
+  setLbImage(startImg||p.imgs[0],p.name);
   document.getElementById('lbTag').textContent=p.tag;
   document.getElementById('lbName').textContent=p.name;
   document.getElementById('lbSize').textContent=p.size||'';
@@ -1754,7 +1754,8 @@ function openLightbox(i){
   const tw=document.getElementById('lbThumbs');
   if(p.imgs.length>1){
     tw.style.display='flex';
-    tw.innerHTML=p.imgs.map((im,idx)=>`<button class="lb-thumb${idx===0?' sel':''}" data-src="${im}"><img src="img/${im}" alt="${p.name} photo ${idx+1}" loading="lazy" onerror="this.style.display='none'"></button>`).join('');
+    const startSrc = startImg||p.imgs[0];
+    tw.innerHTML=p.imgs.map((im,idx)=>`<button class="lb-thumb${im===startSrc?' sel':''}" data-src="${im}"><img src="img/${im}" alt="${p.name} photo ${idx+1}" loading="lazy" onerror="this.style.display='none'"></button>`).join('');
     tw.querySelectorAll('.lb-thumb').forEach(b=>b.onclick=()=>{
       setLbImage(b.dataset.src,p.name);
       tw.querySelectorAll('.lb-thumb').forEach(x=>x.classList.remove('sel'));
